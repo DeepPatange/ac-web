@@ -1,0 +1,173 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --font-sans: "Inter", system-ui, sans-serif;
+    --font-display: "Space Grotesk", var(--font-sans);
+    --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  }
+
+  * {
+    @apply border-white/10;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    @apply bg-ink text-steel-200 font-sans antialiased;
+    overflow-x: hidden;
+  }
+
+  /* Faint red/ember aurora on the near-black base — adds depth without ever
+     lightening the page. Fixed so it stays put while content scrolls. */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background:
+      radial-gradient(40% 34% at 10% 4%, rgba(225, 27, 34, 0.12), transparent 70%),
+      radial-gradient(44% 38% at 90% 8%, rgba(255, 90, 60, 0.08), transparent 72%),
+      radial-gradient(50% 46% at 82% 96%, rgba(225, 27, 34, 0.07), transparent 74%),
+      #0b0b0d;
+  }
+
+  ::selection {
+    @apply bg-accord-red text-white;
+  }
+
+  /* Brand scrollbar */
+  ::-webkit-scrollbar {
+    width: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #16161b;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: linear-gradient(#e11b22, #b3141a);
+    border-radius: 999px;
+  }
+}
+
+@layer components {
+  .text-gradient-red {
+    @apply bg-gradient-to-br from-accord-redLight via-accord-red to-accord-redDark bg-clip-text text-transparent;
+  }
+
+  .text-gradient-ember {
+    @apply bg-gradient-to-r from-accord-ember via-accord-red to-accord-redDark bg-clip-text text-transparent;
+  }
+
+  /* ===========================================================================
+     Dark surfaces — clean, modern (agency-style), not heavy frosted glass.
+     Subtle translucent fill, hairline border, soft top highlight + drop shadow.
+     ========================================================================== */
+
+  /* Chrome: navbar pill, badges, floating buttons. */
+  .glass {
+    background: rgba(18, 18, 22, 0.66);
+    backdrop-filter: blur(16px) saturate(140%);
+    -webkit-backdrop-filter: blur(16px) saturate(140%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow:
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.06),
+      0 14px 40px -18px rgba(0, 0, 0, 0.7);
+  }
+
+  /* Content cards. */
+  .glass-card {
+    @apply rounded-2xl;
+    background: rgba(255, 255, 255, 0.035);
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    box-shadow:
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.05),
+      0 18px 46px -26px rgba(0, 0, 0, 0.75);
+  }
+
+  /* High-legibility surface for forms / dense text. */
+  .glass-strong {
+    @apply rounded-2xl;
+    background: rgba(20, 20, 25, 0.86);
+    backdrop-filter: blur(20px) saturate(140%);
+    -webkit-backdrop-filter: blur(20px) saturate(140%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 20px 54px -24px rgba(0, 0, 0, 0.8);
+  }
+
+  /* Back-compat alias used across older sections → same as a content card. */
+  .glass-light {
+    @apply rounded-2xl;
+    background: rgba(255, 255, 255, 0.035);
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    box-shadow:
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.05),
+      0 18px 46px -26px rgba(0, 0, 0, 0.75);
+  }
+
+  /* Section vertical rhythm */
+  .section {
+    @apply relative py-20 sm:py-28 lg:py-32;
+  }
+}
+
+/* Anchor jumps clear the fixed navbar (matters for reduced-motion / no-JS) */
+section[id],
+footer[id] {
+  scroll-margin-top: 5.5rem;
+}
+
+/* Recolor the Spline port scene from its native blue into the Accord red
+   palette while keeping it dark and clearly visible (no brightening — the
+   scene is meant to read as a moody, dark hero). hue-rotate is GPU-cheap. */
+.spline-tint canvas {
+  filter: hue-rotate(143deg) saturate(1.08) brightness(1.02) contrast(1.05);
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  /* Subtle film grain overlay. Rendered as a small, seamlessly-tiling 120px
+     noise tile (2 octaves) the GPU can repeat cheaply, instead of rasterising a
+     full-section feTurbulence per layer (expensive on scroll across 9 sections). */
+  .noise::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.05;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 120px 120px;
+    background-repeat: repeat;
+  }
+
+  .mask-fade-b {
+    -webkit-mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
+    mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
+  }
+
+  .mask-fade-l {
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, black 44%);
+    mask-image: linear-gradient(to right, transparent 0%, black 44%);
+  }
+}
+
+/* Lenis recommended baseline */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
