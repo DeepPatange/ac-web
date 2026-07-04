@@ -1,23 +1,35 @@
 "use client";
 
 import { useRef } from "react";
+import dynamic from "next/dynamic";
 import Image from "next/image";
 import {
   motion,
   useScroll,
   useTransform,
   useReducedMotion,
+  useInView,
 } from "framer-motion";
-import { hero, cta } from "@/lib/site";
+import { siteConfig, hero, cta } from "@/lib/site";
 import { fadeSoft, stagger } from "@/lib/motion";
 import CharReveal from "@/components/ui/CharReveal";
 import RollButton from "@/components/ui/RollButton";
 
-/* The hero backdrop is a pre-rendered still of the Accord port scene (a high-res
-   frame of the original Spline scene, tint baked in). We deliberately do NOT run
-   the live WebGL scene here: profiling showed the continuously-rendering Spline
-   runtime was ~40% of main-thread CPU and the sole cause of scroll jank. The
-   still is visually identical behind the scrim and costs ~0% CPU. */
+/* The live Spline scene is client-only (WebGL) and loaded lazily. */
+const SplineScene = dynamic(() => import("@/components/three/SplineScene"), {
+  ssr: false,
+  loading: () => null,
+});
+
+/* Local editor file by default; a published .splinecode URL overrides it. */
+const LOCAL_SCENE =
+  "/spline/hero_banner_for_transport_and_logistics_company_gmw_24_25.spline";
+
+/* Pre-rendered still of the same tinted scene. It is the INSTANT hero backdrop
+   (LCP, no blank flash) and the reduced-motion fallback; the live Spline fades
+   in over it once loaded. Because the WebGL scene is heavy, it only RENDERS
+   while the hero is on screen (paused via `active` when scrolled away), so the
+   rest of the page stays smooth. */
 const HERO_POSTER = "/spline/hero-poster.webp";
 
 /* CharReveal rhythm — shared so the accent span picks up exactly where the
@@ -35,6 +47,12 @@ export default function Hero() {
     target: ref,
     offset: ["start start", "end start"],
   });
+
+  /* Keep the WebGL scene mounted (loads once) but only let it RENDER while the
+     hero is on/near screen — its render loop is paused/resumed via `active`.
+     When paused (scrolled away) the poster underneath shows the frozen scene. */
+  const heroActive = useInView(ref, { margin: "200px 0px 200px 0px" });
+  const sceneSrc = siteConfig.splineSceneUrl || LOCAL_SCENE;
 
   /* Headline block drifts up at 1.2× scroll speed (an extra −20vh over one
      viewport of exit) while the Spline wrapper scales to ~1.06 and dims —
@@ -58,8 +76,9 @@ export default function Hero() {
       ref={ref}
       className="relative flex min-h-[100svh] flex-col overflow-hidden bg-ink"
     >
-      {/* Full-bleed port scene (pre-rendered still) — LOCKED: scene + text
-          overlay only. Scales/dims on scroll: transform + opacity only. */}
+      {/* Full-bleed port scene — LOCKED: scene + text overlay only. Scales/dims
+          on scroll: transform + opacity only. Poster is the instant base layer;
+          the live Spline fades in over it and pauses when off-screen. */}
       <motion.div
         style={
           prefersReduced
@@ -78,6 +97,12 @@ export default function Hero() {
           className="select-none object-cover object-center"
           draggable={false}
         />
+        {/* Live 3D scene overlaid on the poster. Reduced motion → poster only. */}
+        {!prefersReduced && (
+          <div className="absolute inset-0">
+            <SplineScene scene={sceneSrc} active={heroActive} />
+          </div>
+        )}
       </motion.div>
 
       {/* Legibility scrim, desktop: top fade under the navbar, left wash behind
