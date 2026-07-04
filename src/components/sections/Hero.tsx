@@ -76,16 +76,17 @@ export default function Hero() {
       ref={ref}
       className="relative flex min-h-[100svh] flex-col overflow-hidden bg-ink"
     >
-      {/* Full-bleed port scene — LOCKED: scene + text overlay only. Scales/dims
-          on scroll: transform + opacity only. Poster is the instant base layer;
-          the live Spline fades in over it and pauses when off-screen. */}
+      {/* Port scene — bottom-right graphic (NOT full-bleed), so it never sits
+          under the text. Mobile: a band below the text (in flow). Desktop:
+          anchored bottom-right. Poster is the instant base; the live Spline
+          fades in over it and pauses off-screen. Scales/dims on scroll. */}
       <motion.div
         style={
           prefersReduced
             ? undefined
             : { scale: sceneScale, opacity: sceneOpacity }
         }
-        className="pointer-events-none absolute inset-0 z-10 origin-center"
+        className="pointer-events-none relative z-10 order-2 mt-2 min-h-[38vh] w-full flex-1 origin-bottom-right sm:min-h-[42vh] lg:absolute lg:bottom-0 lg:right-0 lg:mt-0 lg:h-[74%] lg:w-[56%] lg:flex-none"
         aria-hidden
       >
         <Image
@@ -93,7 +94,7 @@ export default function Hero() {
           alt=""
           fill
           priority
-          sizes="100vw"
+          sizes="(max-width: 1024px) 100vw, 56vw"
           className="select-none object-cover object-center"
           draggable={false}
         />
@@ -103,52 +104,36 @@ export default function Hero() {
             <SplineScene scene={sceneSrc} active={heroActive} />
           </div>
         )}
+        {/* Blend the scene's top/left edges into the ink background so the
+            corner graphic dissolves rather than showing a hard rectangle. */}
+        <div
+          aria-hidden
+          className="absolute inset-0"
+          style={{
+            background:
+              "linear-gradient(to top left, transparent 42%, #0b0b0d), linear-gradient(to bottom, #0b0b0d, transparent 16%)",
+          }}
+        />
       </motion.div>
 
-      {/* Legibility scrim, desktop: top fade under the navbar, left wash behind
-          the headline block, bottom fade into About — one layer. */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 z-20 hidden sm:block"
-        style={{
-          background: [
-            "linear-gradient(to bottom, rgba(11,11,13,0.7), transparent 26%)",
-            "linear-gradient(to right, rgba(11,11,13,0.85), rgba(11,11,13,0.3) 38%, transparent 56%)",
-            "linear-gradient(to top, #0b0b0d, transparent 16%)",
-          ].join(","),
-        }}
-      />
-
-      {/* Mobile scrim — ~0.9 ink behind the text block (headline contrast
-          ≥4.5:1 against the rendered scene is a QA gate). */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 z-20 sm:hidden"
-        style={{
-          background: [
-            "linear-gradient(to bottom, rgba(11,11,13,0.78), rgba(11,11,13,0.9) 34%, rgba(11,11,13,0.9) 72%, #0b0b0d)",
-          ].join(","),
-        }}
-      />
-
-      {/* Text overlay — eyebrow, H1, subtext, CTAs, trust chip. */}
-      <div className="relative z-30 flex w-full flex-1 items-center px-5 pb-28 pt-24 sm:px-8 sm:pt-28 lg:px-12">
+      {/* Text — small, anchored top-left. eyebrow, H1, subtext, CTAs, chip. */}
+      <div className="relative z-30 order-1 px-5 pt-24 sm:px-8 sm:pt-28 lg:px-12 lg:pt-32">
         <motion.div
           style={prefersReduced ? undefined : { y: contentY }}
-          className="max-w-4xl"
+          className="max-w-md sm:max-w-lg"
         >
           <motion.p
             variants={fadeSoft}
             initial="hidden"
             animate="show"
-            className="mb-4 text-xs font-semibold uppercase tracking-[0.22em] text-accord-red sm:mb-5"
+            className="mb-3 text-[11px] font-semibold uppercase tracking-[0.22em] text-accord-red sm:mb-4"
           >
             {hero.eyebrow}
           </motion.p>
 
           <h1
             aria-label={hero.headline}
-            className="type-hero text-white [text-shadow:0_2px_30px_rgba(11,11,13,0.65)] max-sm:text-[2.6rem] max-sm:leading-[1.06]"
+            className="font-display font-semibold tracking-[-0.02em] text-white [text-shadow:0_2px_24px_rgba(11,11,13,0.6)] text-[2rem] leading-[1.05] sm:text-[2.5rem] lg:text-[2.9rem]"
           >
             <span aria-hidden>
               <CharReveal
@@ -182,14 +167,14 @@ export default function Hero() {
           >
             <motion.p
               variants={fadeSoft}
-              className="mt-5 max-w-xl text-base/relaxed text-steel-300 sm:mt-6"
+              className="mt-4 max-w-sm text-sm/relaxed text-steel-300 sm:mt-5"
             >
               {hero.subtext}
             </motion.p>
 
             <motion.div
               variants={fadeSoft}
-              className="mt-7 flex flex-col gap-4 sm:mt-9 sm:flex-row sm:items-center sm:gap-4"
+              className="mt-6 flex flex-col gap-3 sm:mt-7 sm:flex-row sm:items-center sm:gap-4"
             >
               <RollButton href={cta.primary.href} label={cta.primary.label} />
               <RollButton
@@ -201,13 +186,13 @@ export default function Hero() {
 
             <motion.div
               variants={fadeSoft}
-              className="glass mt-6 inline-flex items-center gap-2.5 rounded-[6px] px-3 py-2 sm:mt-7"
+              className="glass mt-5 inline-flex items-center gap-2.5 rounded-[6px] px-3 py-2 sm:mt-6"
             >
               <span
                 className="h-1.5 w-1.5 shrink-0 rounded-full bg-accord-red"
                 aria-hidden
               />
-              <span className="text-[13px] font-medium text-white sm:text-[14px]">
+              <span className="text-[13px] font-medium text-white">
                 {hero.trustChip}
               </span>
             </motion.div>
@@ -219,7 +204,7 @@ export default function Hero() {
           bottom-left. Static full stroke under reduced motion. */}
       <div
         aria-hidden
-        className="absolute bottom-7 left-5 z-30 sm:left-8 lg:left-12"
+        className="absolute bottom-7 left-5 z-30 hidden sm:block lg:left-12"
       >
         <span className="relative block h-6 w-px overflow-hidden bg-white/10">
           {prefersReduced ? (
