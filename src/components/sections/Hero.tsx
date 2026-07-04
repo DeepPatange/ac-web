@@ -76,6 +76,38 @@ export default function Hero() {
       ref={ref}
       className="relative flex min-h-[100svh] flex-col overflow-hidden bg-ink"
     >
+      {/* Exact Accord palette map for the Spline canvas (referenced by
+          `.spline-tint canvas { filter: url(#accord-tritone) }`). Maps scene
+          luminance onto shadows→red #F3122F, mids→grey #C5C5C4, highlights→
+          white #FEFEFE. Red is weighted across the darker half so it reads as
+          a red scene, not a grey one. */}
+      <svg
+        aria-hidden
+        className="absolute h-0 w-0"
+        style={{ position: "absolute", width: 0, height: 0 }}
+      >
+        <defs>
+          <filter
+            id="accord-tritone"
+            colorInterpolationFilters="sRGB"
+            x="0"
+            y="0"
+            width="100%"
+            height="100%"
+          >
+            <feColorMatrix
+              type="matrix"
+              values="0.2126 0.7152 0.0722 0 0 0.2126 0.7152 0.0722 0 0 0.2126 0.7152 0.0722 0 0 0 0 0 1 0"
+            />
+            <feComponentTransfer>
+              <feFuncR type="table" tableValues="0.953 0.953 0.773 0.996" />
+              <feFuncG type="table" tableValues="0.071 0.071 0.773 0.996" />
+              <feFuncB type="table" tableValues="0.184 0.184 0.769 0.996" />
+            </feComponentTransfer>
+          </filter>
+        </defs>
+      </svg>
+
       {/* Full-bleed port scene filling the hero background. Poster is the
           instant base; the live Spline fades in over it and pauses off-screen.
           Scales/dims on scroll (transform/opacity only). */}
