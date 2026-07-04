@@ -76,17 +76,16 @@ export default function Hero() {
       ref={ref}
       className="relative flex min-h-[100svh] flex-col overflow-hidden bg-ink"
     >
-      {/* Port scene — bottom-right graphic (NOT full-bleed), so it never sits
-          under the text. Mobile: a band below the text (in flow). Desktop:
-          anchored bottom-right. Poster is the instant base; the live Spline
-          fades in over it and pauses off-screen. Scales/dims on scroll. */}
+      {/* Full-bleed port scene filling the hero background. Poster is the
+          instant base; the live Spline fades in over it and pauses off-screen.
+          Scales/dims on scroll (transform/opacity only). */}
       <motion.div
         style={
           prefersReduced
             ? undefined
             : { scale: sceneScale, opacity: sceneOpacity }
         }
-        className="pointer-events-none relative z-10 order-2 mt-2 min-h-[38vh] w-full flex-1 origin-bottom-right sm:min-h-[42vh] lg:absolute lg:bottom-0 lg:right-0 lg:mt-0 lg:h-[74%] lg:w-[56%] lg:flex-none"
+        className="pointer-events-none absolute inset-0 z-10 origin-center"
         aria-hidden
       >
         <Image
@@ -94,7 +93,7 @@ export default function Hero() {
           alt=""
           fill
           priority
-          sizes="(max-width: 1024px) 100vw, 56vw"
+          sizes="100vw"
           className="select-none object-cover object-center"
           draggable={false}
         />
@@ -104,20 +103,33 @@ export default function Hero() {
             <SplineScene scene={sceneSrc} active={heroActive} />
           </div>
         )}
-        {/* Blend the scene's top/left edges into the ink background so the
-            corner graphic dissolves rather than showing a hard rectangle. */}
-        <div
-          aria-hidden
-          className="absolute inset-0"
-          style={{
-            background:
-              "linear-gradient(to top left, transparent 42%, #0b0b0d), linear-gradient(to bottom, #0b0b0d, transparent 16%)",
-          }}
-        />
       </motion.div>
 
+      {/* Legibility scrim for the small top-left text over the full-bleed
+          scene: top fade under the navbar, left wash behind the text, bottom
+          fade into About. */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 z-20 hidden sm:block"
+        style={{
+          background: [
+            "linear-gradient(to bottom, rgba(11,11,13,0.72), transparent 30%)",
+            "linear-gradient(to right, rgba(11,11,13,0.85), rgba(11,11,13,0.35) 40%, transparent 60%)",
+            "linear-gradient(to top, #0b0b0d, transparent 16%)",
+          ].join(","),
+        }}
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 z-20 sm:hidden"
+        style={{
+          background:
+            "linear-gradient(to bottom, rgba(11,11,13,0.9), rgba(11,11,13,0.6) 46%, transparent 78%), linear-gradient(to top, #0b0b0d, transparent 12%)",
+        }}
+      />
+
       {/* Text — small, anchored top-left. eyebrow, H1, subtext, CTAs, chip. */}
-      <div className="relative z-30 order-1 px-5 pt-24 sm:px-8 sm:pt-28 lg:px-12 lg:pt-32">
+      <div className="relative z-30 px-5 pt-24 sm:px-8 sm:pt-28 lg:px-12 lg:pt-32">
         <motion.div
           style={prefersReduced ? undefined : { y: contentY }}
           className="max-w-md sm:max-w-lg"
@@ -204,7 +216,7 @@ export default function Hero() {
           bottom-left. Static full stroke under reduced motion. */}
       <div
         aria-hidden
-        className="absolute bottom-7 left-5 z-30 hidden sm:block lg:left-12"
+        className="absolute bottom-7 left-5 z-30 sm:left-8 lg:left-12"
       >
         <span className="relative block h-6 w-px overflow-hidden bg-white/10">
           {prefersReduced ? (
