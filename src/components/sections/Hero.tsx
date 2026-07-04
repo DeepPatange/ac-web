@@ -1,28 +1,24 @@
 "use client";
 
 import { useRef } from "react";
-import dynamic from "next/dynamic";
+import Image from "next/image";
 import {
   motion,
   useScroll,
   useTransform,
   useReducedMotion,
-  useInView,
 } from "framer-motion";
-import { siteConfig, hero, cta } from "@/lib/site";
+import { hero, cta } from "@/lib/site";
 import { fadeSoft, stagger } from "@/lib/motion";
 import CharReveal from "@/components/ui/CharReveal";
 import RollButton from "@/components/ui/RollButton";
 
-/* The real Spline scene is client-only (WebGL). */
-const SplineScene = dynamic(() => import("@/components/three/SplineScene"), {
-  ssr: false,
-  loading: () => null,
-});
-
-/* Local editor file by default; a published .splinecode URL overrides it. */
-const LOCAL_SCENE =
-  "/spline/hero_banner_for_transport_and_logistics_company_gmw_24_25.spline";
+/* The hero backdrop is a pre-rendered still of the Accord port scene (a high-res
+   frame of the original Spline scene, tint baked in). We deliberately do NOT run
+   the live WebGL scene here: profiling showed the continuously-rendering Spline
+   runtime was ~40% of main-thread CPU and the sole cause of scroll jank. The
+   still is visually identical behind the scrim and costs ~0% CPU. */
+const HERO_POSTER = "/spline/hero-poster.webp";
 
 /* CharReveal rhythm — shared so the accent span picks up exactly where the
    leading words leave off (delay + wordIndex * beat + charIndex * stagger). */
@@ -40,19 +36,12 @@ export default function Hero() {
     offset: ["start start", "end start"],
   });
 
-  /* Keep the WebGL scene mounted the whole time (so it loads once and never
-     reloads), but only let it RENDER while the hero is on/near screen — the
-     Spline app's loop is paused/resumed via the `active` prop below. */
-  const heroActive = useInView(ref, { margin: "150px 0px 150px 0px" });
-
   /* Headline block drifts up at 1.2× scroll speed (an extra −20vh over one
      viewport of exit) while the Spline wrapper scales to ~1.06 and dims —
      depth separation, transform/opacity only. */
   const contentY = useTransform(scrollYProgress, [0, 1], ["0vh", "-20vh"]);
   const sceneScale = useTransform(scrollYProgress, [0, 1], [1, 1.06]);
   const sceneOpacity = useTransform(scrollYProgress, [0, 0.9], [1, 0.25]);
-
-  const sceneSrc = siteConfig.splineSceneUrl || LOCAL_SCENE;
 
   /* Split the headline around the accent word so only it renders red
      (mobile contrast mandate); the copy itself stays in site.ts. */
@@ -69,7 +58,8 @@ export default function Hero() {
       ref={ref}
       className="relative flex min-h-[100svh] flex-col overflow-hidden bg-ink"
     >
-      {/* Full-bleed Spline port scene — LOCKED: scene + text overlay only. */}
+      {/* Full-bleed port scene (pre-rendered still) — LOCKED: scene + text
+          overlay only. Scales/dims on scroll: transform + opacity only. */}
       <motion.div
         style={
           prefersReduced
@@ -79,9 +69,15 @@ export default function Hero() {
         className="pointer-events-none absolute inset-0 z-10 origin-center"
         aria-hidden
       >
-        <div className="relative h-full w-full">
-          <SplineScene scene={sceneSrc} active={heroActive} />
-        </div>
+        <Image
+          src={HERO_POSTER}
+          alt=""
+          fill
+          priority
+          sizes="100vw"
+          className="select-none object-cover object-center"
+          draggable={false}
+        />
       </motion.div>
 
       {/* Legibility scrim, desktop: top fade under the navbar, left wash behind
