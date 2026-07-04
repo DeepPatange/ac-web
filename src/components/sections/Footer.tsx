@@ -1,181 +1,246 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useRef } from "react";
 import {
-  AnimatePresence,
   motion,
-  useMotionValueEvent,
+  useReducedMotion,
   useScroll,
+  useTransform,
 } from "framer-motion";
 import {
+  ArrowRight,
   ArrowUp,
   Facebook,
   Linkedin,
   Mail,
   MapPin,
-  MessageCircle,
   Phone,
+  type LucideIcon,
 } from "lucide-react";
+import CharReveal from "@/components/ui/CharReveal";
 import Container from "@/components/ui/Container";
-import { nav, products, siteConfig } from "@/lib/site";
-import { fadeUp, inView, stagger } from "@/lib/motion";
-import { cn } from "@/lib/utils";
+import TradeArc from "@/components/ui/TradeArc";
+import { TextRoll } from "@/components/ui/RollButton";
+import { contactMeta, cta, footerCopy, nav, siteConfig } from "@/lib/site";
+import { fadeSoft, stagger } from "@/lib/motion";
 
-const ABOUT_BLURB =
-  "Accord Chemical Corporation stands out as one of the largest petrochemical distribution companies — leading in the import, export and indenting of diverse petrochemicals from our Mumbai headquarters.";
+/**
+ * Footer — the page's final flourish (brief §5 Footer, §2.6, §4.1).
+ *
+ * 1. Red-field CTA band: the palette's ONE inversion. Trade Arcs converge in
+ *    the dark strip above the band (red strokes stay legible on ink), the node
+ *    lands at the band's edge directly above the CTA, and the headline enters
+ *    via CharReveal in .type-hero — its only allowed use outside the hero.
+ * 2. Footer proper: deliberately quiet. One-liner, meaningful deep links,
+ *    conditional legal slots (CIN/GST render only when confirmed), Itarsia
+ *    byline per site.ts, back-to-top button. No social icons while the URLs
+ *    are empty. Not pinned; no scroll theatrics beyond the arc scrub.
+ *
+ * ContactPill measures the site <footer> element to hide near it — this
+ * component MUST stay a semantic <footer>.
+ */
 
-const socials = [
+/** Social slots — icons render ONLY for non-empty URLs (all empty today). */
+const SOCIALS: { label: string; href: string; Icon: LucideIcon }[] = [
   { label: "Facebook", href: siteConfig.social.facebook, Icon: Facebook },
   { label: "LinkedIn", href: siteConfig.social.linkedin, Icon: Linkedin },
-] as const;
+].filter((s) => Boolean(s.href));
 
-const legalLinks = [
-  { label: "Privacy", href: "#" },
-  { label: "Terms", href: "#" },
-] as const;
-
-/** Small column heading shared across the footer link groups. */
-function ColumnTitle({ children }: { children: React.ReactNode }) {
+/** Mono micro-heading for the quiet link columns (technical-data voice). */
+function ColumnLabel({ children }: { children: React.ReactNode }) {
   return (
-    <h3 className="mb-5 font-display text-sm font-bold uppercase tracking-[0.18em] text-white">
+    <p className="mb-5 font-mono text-[11px] uppercase tracking-widest text-steel-400">
       {children}
-    </h3>
+    </p>
   );
 }
 
-/** Animated footer link with a subtle slide + red hover. */
-function FooterLink({ href, children }: { href: string; children: React.ReactNode }) {
+/** Quiet footer link — color-only hover (no translate; brief §4.4 chips). */
+function FooterLink({
+  href,
+  children,
+}: {
+  href: string;
+  children: React.ReactNode;
+}) {
   return (
     <li>
-      <motion.span
-        className="inline-block"
-        whileHover={{ x: 4 }}
-        transition={{ type: "spring", stiffness: 400, damping: 26 }}
+      <Link
+        href={href}
+        className="text-sm text-steel-400 transition-colors duration-300 hover:text-white focus-visible:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accord-red rounded-sm"
       >
-        <Link
-          href={href}
-          className="text-sm text-steel-400 transition-colors duration-300 hover:text-accord-red focus-visible:text-accord-red focus-visible:outline-none"
-        >
-          {children}
-        </Link>
-      </motion.span>
+        {children}
+      </Link>
     </li>
   );
 }
 
 export default function Footer() {
-  const { scrollY } = useScroll();
-  const [showTop, setShowTop] = useState(false);
+  const reduced = useReducedMotion();
+  const bandRef = useRef<HTMLDivElement>(null);
 
-  useMotionValueEvent(scrollY, "change", (latest) => {
-    setShowTop(latest > 600);
+  // Entry progress for the converging Trade Arcs — scrubbed, transform/opacity
+  // only (TradeArc animates pathLength; renders complete under reduced motion).
+  const { scrollYProgress } = useScroll({
+    target: bandRef,
+    offset: ["start end", "start center"],
   });
+  const arcMain = scrollYProgress;
+  const arcLate = useTransform(scrollYProgress, [0.18, 1], [0, 1]);
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: reduced ? "auto" : "smooth" });
+  };
+
+  const year = new Date().getFullYear();
 
   return (
-    <footer
-      id="footer"
-      className="noise relative overflow-hidden bg-ink text-steel-300"
-    >
-      {/* Top gradient hairline: red → ember */}
-      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-accord-red to-accord-ember" />
-
-      {/* Soft red glow at the top edge */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -top-40 left-1/2 h-80 w-[44rem] -translate-x-1/2 bg-radial-fade blur-2xl"
-      />
-
-      {/* Faint grid texture */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 bg-grid-faint [background-size:54px_54px] opacity-60 mask-fade-b"
-      />
-
-      <Container className="relative z-10">
-        {/* ── Top CTA strip — frosted glass panel ─────────────────── */}
-        <motion.div
-          variants={fadeUp}
-          initial="hidden"
-          whileInView="show"
-          viewport={inView}
-          className="mt-12 flex flex-col items-start justify-between gap-6 glass-card px-6 py-8 sm:flex-row sm:items-center sm:px-10 sm:py-10"
+    <footer className="relative bg-ink text-steel-300">
+      {/* ══ 1. RED-FIELD CTA BAND — the final flourish ═══════════════════ */}
+      <div ref={bandRef}>
+        {/* Convergence strip: Trade Arcs draw across the dark boundary and
+            meet at a single node above the CTA. Red on ink stays legible;
+            red on the red field would not. */}
+        <div
+          aria-hidden
+          className="relative h-28 overflow-visible sm:h-40"
         >
-          <p className="max-w-xl font-display text-2xl font-bold leading-tight text-white sm:text-3xl">
-            Ready to move your next{" "}
-            <span className="text-gradient-ember">consignment?</span>
-          </p>
-          <Link
-            href="#contact"
-            className="group relative inline-flex shrink-0 items-center justify-center gap-2 overflow-hidden rounded-full bg-accord-red px-7 py-3 text-sm font-semibold tracking-wide text-white shadow-[0_10px_30px_-10px_rgba(225,27,34,0.7)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-accord-redDark"
-          >
-            <span className="relative z-10 inline-flex items-center gap-2">
-              Talk to our desk
-              <ArrowUp className="h-4 w-4 rotate-45 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-            </span>
-            <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/30 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
-          </Link>
-        </motion.div>
+          <TradeArc
+            progress={arcMain}
+            from={{ x: -2, y: 18 }}
+            to={{ x: 50, y: 96 }}
+            curve={22}
+            nodeAt={1}
+            nodeSize={9}
+          />
+          <TradeArc
+            progress={arcMain}
+            from={{ x: 102, y: 18 }}
+            to={{ x: 50, y: 96 }}
+            curve={22}
+            showNode={false}
+          />
+          <TradeArc
+            progress={arcLate}
+            from={{ x: 12, y: -6 }}
+            to={{ x: 50, y: 96 }}
+            curve={14}
+            strokeWidth={1}
+            showNode={false}
+            className="opacity-50"
+          />
+          <TradeArc
+            progress={arcLate}
+            from={{ x: 88, y: -6 }}
+            to={{ x: 50, y: 96 }}
+            curve={14}
+            strokeWidth={1}
+            showNode={false}
+            className="opacity-50"
+          />
+        </div>
 
-        {/* ── Main grid ───────────────────────────────────────────── */}
+        {/* The palette's one inversion: a full-width red field. */}
+        <div className="noise relative overflow-hidden bg-gradient-to-b from-accord-red to-accord-redDark">
+          {/* Static ember glow continuing the node's landing point. */}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 bg-[radial-gradient(70%_65%_at_50%_0%,rgba(255,90,60,0.38),transparent_62%)]"
+          />
+          {/* Static bottom vignette for depth — never animated. */}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 bg-[radial-gradient(110%_80%_at_50%_115%,rgba(0,0,0,0.30),transparent_58%)]"
+          />
+
+          <Container className="relative z-10 flex flex-col items-center gap-10 py-24 text-center sm:py-28 lg:py-32">
+            <CharReveal
+              as="h2"
+              className="type-hero mx-auto max-w-5xl text-balance text-white max-[430px]:text-[2.75rem]"
+            >
+              {footerCopy.ctaHeadline}
+            </CharReveal>
+
+            {/* CTA tier: lift + glow + TextRoll (brief §4.4). Inverted fill so
+                the button reads against the red field. */}
+            <motion.div
+              variants={fadeSoft}
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true, amount: 0.6 }}
+            >
+              <Link
+                href={cta.desk.href}
+                className="group inline-flex items-center gap-3 rounded-full bg-white py-2.5 pl-6 pr-2.5 text-[15px] font-medium text-accord-red shadow-[0_18px_50px_-14px_rgba(0,0,0,0.5)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_26px_60px_-14px_rgba(0,0,0,0.6)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-accord-red"
+              >
+                <TextRoll text={cta.desk.label} />
+                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-accord-red">
+                  <ArrowRight
+                    size={16}
+                    className="text-white transition-transform duration-500 ease-[cubic-bezier(0.25,0.1,0.25,1)] group-hover:-rotate-45"
+                  />
+                </span>
+              </Link>
+            </motion.div>
+          </Container>
+        </div>
+      </div>
+
+      {/* ══ 2. FOOTER PROPER — quiet ═════════════════════════════════════ */}
+      <Container>
         <motion.div
-          variants={stagger(0.12)}
+          variants={stagger(0.08)}
           initial="hidden"
           whileInView="show"
           viewport={{ once: true, amount: 0.15 }}
-          className="grid grid-cols-1 gap-12 py-16 sm:grid-cols-2 lg:grid-cols-4 lg:gap-10"
+          className="grid grid-cols-1 gap-12 py-16 sm:grid-cols-2 sm:py-20 lg:grid-cols-12 lg:gap-8"
         >
-          {/* 1. Brand */}
-          <motion.div variants={fadeUp} className="lg:pr-6">
+          {/* Brand + one-liner */}
+          <motion.div variants={fadeSoft} className="sm:col-span-2 lg:col-span-5 lg:pr-10">
             <Link
               href="#home"
-              className="inline-flex items-baseline font-display text-2xl font-bold tracking-tight"
+              className="inline-flex items-baseline font-display text-2xl font-semibold tracking-tight focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accord-red rounded-sm"
             >
               <span className="text-white">Accord</span>
               <span className="text-accord-red">Chemicals</span>
             </Link>
-            <p className="mt-1 text-xs font-medium uppercase tracking-[0.18em] text-steel-400">
+            <p className="mt-2 font-mono text-[11px] uppercase tracking-widest text-steel-400">
               {siteConfig.legalName}
             </p>
             <p className="mt-5 max-w-sm text-sm leading-relaxed text-steel-400">
-              {ABOUT_BLURB}
+              {footerCopy.oneLiner}
             </p>
+            <Link
+              href={cta.secondary.href}
+              className="group mt-6 inline-flex items-center gap-2 text-sm text-steel-300 transition-colors duration-300 hover:text-white focus-visible:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accord-red rounded-sm"
+            >
+              {footerCopy.productsCollapsedLabel}
+              <ArrowRight className="h-3.5 w-3.5 text-accord-red transition-transform duration-300 group-hover:translate-x-1" />
+            </Link>
 
-            {/* Socials */}
-            <div className="mt-6 flex items-center gap-3">
-              {socials.map(({ label, href, Icon }) => (
-                <motion.a
-                  key={label}
-                  href={href}
-                  aria-label={label}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  whileHover={{ y: -3 }}
-                  whileTap={{ scale: 0.94 }}
-                  transition={{ type: "spring", stiffness: 400, damping: 22 }}
-                  className="glass grid h-10 w-10 place-items-center rounded-full text-steel-200 transition-colors duration-300 hover:border-accord-red/50 hover:bg-accord-red hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accord-red"
-                >
-                  <Icon className="h-[18px] w-[18px]" />
-                </motion.a>
-              ))}
-            </div>
+            {/* Socials — only when the client supplies real URLs (none today). */}
+            {SOCIALS.length > 0 && (
+              <div className="mt-6 flex items-center gap-3">
+                {SOCIALS.map(({ label, href, Icon }) => (
+                  <a
+                    key={label}
+                    href={href}
+                    aria-label={label}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="grid h-10 w-10 place-items-center rounded-full border border-white/10 bg-white/[0.03] text-steel-300 transition-colors duration-300 hover:border-accord-red/50 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accord-red"
+                  >
+                    <Icon className="h-[18px] w-[18px]" />
+                  </a>
+                ))}
+              </div>
+            )}
           </motion.div>
 
-          {/* 2. Products */}
-          <motion.div variants={fadeUp}>
-            <ColumnTitle>Products</ColumnTitle>
-            <ul className="space-y-3">
-              {products.map((product) => (
-                <FooterLink key={product.name} href="#products">
-                  {product.name}
-                </FooterLink>
-              ))}
-            </ul>
-          </motion.div>
-
-          {/* 3. Quick Links */}
-          <motion.div variants={fadeUp}>
-            <ColumnTitle>Quick Links</ColumnTitle>
+          {/* Explore — mirrors the nav's section order exactly. */}
+          <motion.nav variants={fadeSoft} aria-label="Footer" className="lg:col-span-3">
+            <ColumnLabel>Explore</ColumnLabel>
             <ul className="space-y-3">
               {nav.map((item) => (
                 <FooterLink key={item.href} href={item.href}>
@@ -183,26 +248,33 @@ export default function Footer() {
                 </FooterLink>
               ))}
             </ul>
-          </motion.div>
+          </motion.nav>
 
-          {/* 4. Contact */}
-          <motion.div variants={fadeUp}>
-            <ColumnTitle>Contact</ColumnTitle>
+          {/* Contact */}
+          <motion.div variants={fadeSoft} className="lg:col-span-4">
+            <ColumnLabel>Contact</ColumnLabel>
             <ul className="space-y-4 text-sm text-steel-400">
-              <li className="flex gap-3">
-                <MapPin className="mt-0.5 h-[18px] w-[18px] shrink-0 text-accord-red" />
-                <address className="not-italic leading-relaxed">
-                  {siteConfig.contact.addressLines.map((line) => (
-                    <span key={line} className="block">
-                      {line}
-                    </span>
-                  ))}
-                </address>
+              <li>
+                <a
+                  href={siteConfig.contact.mapHref}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex gap-3 transition-colors duration-300 hover:text-white focus-visible:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accord-red rounded-sm"
+                >
+                  <MapPin className="mt-0.5 h-[18px] w-[18px] shrink-0 text-accord-red" />
+                  <address className="not-italic leading-relaxed">
+                    {siteConfig.contact.addressLines.map((line) => (
+                      <span key={line} className="block">
+                        {line}
+                      </span>
+                    ))}
+                  </address>
+                </a>
               </li>
               <li>
                 <a
                   href={siteConfig.contact.phoneHref}
-                  className="group inline-flex items-center gap-3 transition-colors duration-300 hover:text-accord-red focus-visible:outline-none focus-visible:text-accord-red"
+                  className="inline-flex items-center gap-3 transition-colors duration-300 hover:text-white focus-visible:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accord-red rounded-sm"
                 >
                   <Phone className="h-[18px] w-[18px] shrink-0 text-accord-red" />
                   <span>{siteConfig.contact.phone}</span>
@@ -211,132 +283,46 @@ export default function Footer() {
               <li>
                 <a
                   href={siteConfig.contact.emailHref}
-                  className="group inline-flex items-center gap-3 break-all transition-colors duration-300 hover:text-accord-red focus-visible:outline-none focus-visible:text-accord-red"
+                  className="inline-flex items-center gap-3 break-all transition-colors duration-300 hover:text-white focus-visible:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accord-red rounded-sm"
                 >
                   <Mail className="h-[18px] w-[18px] shrink-0 text-accord-red" />
                   <span>{siteConfig.contact.email}</span>
                 </a>
               </li>
+              {/* Hours — client-input slot; renders only when confirmed. */}
+              {contactMeta.hours && (
+                <li className="font-mono text-xs tracking-widest text-steel-400">
+                  {contactMeta.hours}
+                </li>
+              )}
             </ul>
           </motion.div>
         </motion.div>
 
-        {/* ── Bottom bar ──────────────────────────────────────────── */}
-        <div className="flex flex-col items-center justify-between gap-4 border-t border-white/10 py-7 text-center sm:flex-row sm:text-left">
-          <p className="text-xs text-steel-400">
-            © {new Date().getFullYear()} Accord Chemicals. All Rights Reserved. Powered by{" "}
-            <span className="text-steel-300">{siteConfig.poweredBy}</span>.
+        {/* ── Bottom bar: legal line (mono voice) + byline + back-to-top ── */}
+        <div className="flex flex-col items-center justify-between gap-5 border-t border-white/10 py-8 text-center sm:flex-row sm:text-left">
+          <p className="font-mono text-[11px] leading-relaxed tracking-wider text-steel-400">
+            © {year} {siteConfig.legalName}. All rights reserved.
+            {siteConfig.legal.cin && (
+              <span className="whitespace-nowrap"> · CIN {siteConfig.legal.cin}</span>
+            )}
+            {siteConfig.legal.gst && (
+              <span className="whitespace-nowrap"> · GST {siteConfig.legal.gst}</span>
+            )}
+            <span className="block sm:inline"> · {footerCopy.byline}</span>
           </p>
-          <nav aria-label="Legal" className="flex items-center gap-6">
-            {legalLinks.map((item) => (
-              <Link
-                key={item.label}
-                href={item.href}
-                className="text-xs text-steel-400 transition-colors duration-300 hover:text-accord-red focus-visible:outline-none focus-visible:text-accord-red"
-              >
-                {item.label}
-              </Link>
-            ))}
-          </nav>
+
+          <button
+            type="button"
+            onClick={scrollToTop}
+            aria-label={footerCopy.backToTop}
+            className="group inline-flex shrink-0 items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-xs text-steel-300 transition-colors duration-300 hover:border-accord-red/50 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accord-red"
+          >
+            <ArrowUp className="h-3.5 w-3.5 text-accord-red transition-transform duration-300 group-hover:-translate-y-0.5" />
+            {footerCopy.backToTop}
+          </button>
         </div>
       </Container>
-
-      {/* ── Floating actions ──────────────────────────────────────── */}
-      {/* z-40: below the mobile menu (z-50) so it can't bleed over the open menu. */}
-      <div className="fixed bottom-6 right-5 z-40 flex flex-col items-center gap-3 sm:bottom-8 sm:right-8">
-        {/* Back to top — fades in after scrolling */}
-        <AnimatePresence>
-          {showTop && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.6, y: 10 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.6, y: 10 }}
-              transition={{ duration: 0.25 }}
-            >
-              <Link
-                href="#home"
-                aria-label="Back to top"
-                className={cn(
-                  "glass grid h-11 w-11 place-items-center rounded-full text-steel-200 transition-all duration-300",
-                  "hover:scale-110 hover:border-accord-red/60 hover:text-accord-red",
-                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accord-red"
-                )}
-              >
-                <ArrowUp className="h-5 w-5" />
-              </Link>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* WhatsApp — green */}
-        <FloatingAction
-          href={siteConfig.contact.whatsappHref}
-          label="Chat on WhatsApp"
-          color="#25D366"
-          external
-        >
-          <MessageCircle className="h-6 w-6" />
-        </FloatingAction>
-
-        {/* Email — brand red */}
-        <FloatingAction
-          href={siteConfig.contact.emailHref}
-          label="Email us"
-          color="#E11B22"
-        >
-          <Mail className="h-6 w-6" />
-        </FloatingAction>
-      </div>
     </footer>
-  );
-}
-
-/** Round chip floating CTA with a hover scale + pulse ring. */
-function FloatingAction({
-  href,
-  label,
-  color,
-  external = false,
-  children,
-}: {
-  href: string;
-  label: string;
-  color: string;
-  external?: boolean;
-  children: React.ReactNode;
-}) {
-  return (
-    <motion.a
-      href={href}
-      aria-label={label}
-      target={external ? "_blank" : undefined}
-      rel={external ? "noopener noreferrer" : undefined}
-      whileHover={{ scale: 1.1 }}
-      whileTap={{ scale: 0.92 }}
-      transition={{ type: "spring", stiffness: 400, damping: 20 }}
-      className="relative grid place-items-center overflow-hidden rounded-full text-white backdrop-blur-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
-      style={{
-        // Translucent brand fill over backdrop-blur reads as frosted glass
-        // while the saturated hue keeps WhatsApp green / Email red recognizable.
-        backgroundColor: `${color}e6`,
-        height: "3.25rem",
-        width: "3.25rem",
-        border: `1px solid ${color}`,
-        boxShadow: `inset 0 1px 0 0 rgba(255,255,255,0.35), 0 12px 30px -10px ${color}cc`,
-      }}
-    >
-      {/* Pulse ring */}
-      <span
-        aria-hidden
-        className="absolute inset-0 animate-pulse-ring rounded-full"
-        style={{ backgroundColor: color }}
-      />
-      {/* Frosted top highlight sheen */}
-      <span
-        aria-hidden
-        className="absolute inset-x-0 top-0 h-1/2 rounded-t-full bg-gradient-to-b from-white/25 to-transparent"
-      />
-      <span className="relative z-10">{children}</span>
-    </motion.a>
   );
 }

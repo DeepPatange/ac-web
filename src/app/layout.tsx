@@ -1,9 +1,11 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, Space_Grotesk, JetBrains_Mono } from "next/font/google";
+import { MotionConfig } from "framer-motion";
 import "./globals.css";
 import { siteConfig } from "@/lib/site";
 import SmoothScroll from "@/components/SmoothScroll";
 import ScrollProgress from "@/components/ui/ScrollProgress";
+import ContactPill from "@/components/ui/ContactPill";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -23,25 +25,31 @@ const mono = JetBrains_Mono({
   display: "swap",
 });
 
+const seoTitle =
+  "Petrochemical Trading, Imports & Indenting Company in Mumbai | Accord Chemical Corporation";
+
 export const metadata: Metadata = {
+  metadataBase: new URL("https://www.accordchemicals.com"),
   title: {
-    default: `${siteConfig.name} — Trusted Petrochemical Trading & Customs Clearing`,
-    template: `%s — ${siteConfig.name}`,
+    default: seoTitle,
+    template: `%s | ${siteConfig.name}`,
   },
   description: siteConfig.description,
-  keywords: [
-    "petrochemicals",
-    "chemical trading",
-    "import export chemicals",
-    "indenting",
-    "customs clearing",
-    "Mumbai chemicals",
-    "Accord Chemical Corporation",
-  ],
   openGraph: {
-    title: siteConfig.name,
+    title: seoTitle,
     description: siteConfig.description,
     type: "website",
+    locale: "en_IN",
+    siteName: siteConfig.name,
+    // 1200×630 red port scene — asset supplied at integration (public/og.png).
+    images: [
+      {
+        url: "/og.png",
+        width: 1200,
+        height: 630,
+        alt: "Accord Chemical Corporation — petrochemical trade, moved with precision",
+      },
+    ],
   },
 };
 
@@ -62,8 +70,12 @@ export default function RootLayout({
       className={`${inter.variable} ${display.variable} ${mono.variable}`}
     >
       <body>
-        <ScrollProgress />
-        <SmoothScroll>{children}</SmoothScroll>
+        <MotionConfig reducedMotion="user">
+          <ScrollProgress />
+          <SmoothScroll>{children}</SmoothScroll>
+          {/* The ONE floating affordance (§7.6). Back-to-top lives in Footer. */}
+          <ContactPill />
+        </MotionConfig>
       </body>
     </html>
   );

@@ -2,15 +2,31 @@
  * Accord Chemical Corporation — central content + config.
  * Single source of truth. Section components import from here so copy stays
  * consistent and the client can edit content in one place.
+ *
+ * Number canon (do not contradict anywhere):
+ *   110,000+ MT annually · $168M / ₹1,400 Cr (FY 2022-23) · 58+ countries ·
+ *   186+ active clients · tenure computed via yearsInBusiness().
+ *
+ * Client-input slots (empty until the client supplies real data — sections
+ * must render nothing for empty slots, never placeholders or invented facts):
+ *   credibility.memberships / logos / testimonial · contactMeta.gstin / iec /
+ *   hours · productListPdf · siteConfig.social.* · legal.cin / gst.
  */
+
+export const FOUNDING_YEAR = 2009;
+
+/** Tenure, computed — never hardcode a year count anywhere in copy. */
+export function yearsInBusiness(): number {
+  return new Date().getFullYear() - FOUNDING_YEAR;
+}
 
 export const siteConfig = {
   name: "Accord Chemical Corporation",
   legalName: "Accord Chemicals Private Limited",
-  tagline: "Pioneering Petrochemical Excellence Since 2009",
-  established: 2009,
+  tagline: "Petrochemicals traded across 58 countries — from Mumbai, since 2009.",
+  established: FOUNDING_YEAR,
   description:
-    "Accord Chemical Corporation, established in 2009, is actively engaged in Trading, Indenting, Distribution, Imports & Exports of various petrochemicals.",
+    "Mumbai-based petrochemical trading house — imports, exports and indenting of commodity and specialty petrochemicals, moving 110,000+ metric tons a year between 58+ countries and India since 2009.",
   /**
    * Paste a PUBLISHED Spline runtime URL here (ends in .splinecode) to render
    * the client's real Spline hero. While empty, the custom WebGL logistics
@@ -30,101 +46,225 @@ export const siteConfig = {
     email: "info@accordchemicals.com",
     emailHref: "mailto:info@accordchemicals.com",
     whatsappHref: "https://wa.me/917710005176",
+    /** Exact Google Business listing — dark map card links here. */
+    mapHref: "https://www.google.com/maps/search/?api=1&query=Kanakia+Western+Edge+II%2C+Borivali+East%2C+Mumbai",
   },
+  /**
+   * Social profiles — EMPTY until the client supplies real URLs.
+   * Footer renders an icon only when its value is a non-empty string.
+   */
   social: {
-    facebook: "#",
-    linkedin: "#",
+    facebook: "",
+    linkedin: "",
   },
+  /** Relationship unconfirmed — footer renders "Site by {poweredBy}". */
   poweredBy: "Itarsia India Limited",
+  /** Legal registration slots — render only when confirmed by the client. */
+  legal: {
+    cin: "",
+    gst: "",
+  },
 } as const;
 
+/** Nav — labels and order mirror the page's section order EXACTLY. */
 export const nav = [
   { label: "Home", href: "#home" },
   { label: "About", href: "#about" },
+  { label: "What we do", href: "#what-we-do" },
   { label: "Products", href: "#products" },
-  { label: "Services", href: "#verticals" },
   { label: "Industries", href: "#industries" },
-  { label: "Growth", href: "#growth" },
+  { label: "Track record", href: "#growth" },
   { label: "Contact", href: "#contact" },
 ] as const;
 
-/** Core business verticals */
+/**
+ * CTA vocabulary — the ONLY conversion verbs allowed anywhere on the page.
+ * Sections import these; never write CTA labels inline.
+ */
+export const cta = {
+  /** Primary conversion verb — navbar, hero primary, products, per-family Enquire. */
+  primary: { label: "Request a quote", href: "#contact" },
+  /** Secondary — hero ghost CTA. */
+  secondary: { label: "Explore products", href: "#products" },
+  /** Relationship verb — footer red-field band button ONLY. */
+  desk: { label: "Talk to our desk", href: "#contact" },
+  /** Contact form submit label. */
+  submit: "Send enquiry",
+  /** Per-family enquire label (Products grid rows). */
+  enquire: "Enquire",
+} as const;
+
+/** Hero overlay copy — Spline scene + text overlay ONLY. */
+export const hero = {
+  eyebrow: "Mumbai · Est. 2009 · 58+ countries",
+  headline: "Petrochemical trade, moved with precision.",
+  /** The word rendered in accord-red within the headline. */
+  headlineAccent: "precision",
+  subtext:
+    "Imports, exports and indenting of commodity and specialty petrochemicals — 110,000+ metric tons a year between 58 countries and India.",
+  trustChip: "Trusted since 2009 · 186+ clients",
+} as const;
+
+/** 01 — About: "One desk from indent to delivery." */
+export const aboutCopy = {
+  eyebrow: "About",
+  heading: "One desk from indent to delivery.",
+  body: [
+    "Accord Chemical Corporation started trading petrochemicals from Mumbai in 2009, moving 4,500 metric tons in its first year. Today the desk moves 110,000+ metric tons annually, sourcing and selling across 58+ countries — every year of that arc audited and on the record.",
+    "What 186+ active clients actually buy is certainty: producer-direct relationships, transparent indent pricing, and in-house clearing, storage, insurance and logistics. One call covers the consignment.",
+  ],
+  pillars: [
+    {
+      title: "Producer-direct",
+      desc: "Direct relationships with producers worldwide — producer pricing, transparent terms, no middle inventory.",
+    },
+    {
+      title: "110,000+ MT a year",
+      desc: "From 4,500 tonnes in year one to 110,000+ metric tons annually — growth you can audit, not adjectives.",
+    },
+    {
+      title: "End-to-end",
+      desc: "Clearing, storage, survey, insurance and inland logistics handled in-house — one desk accountable to your gate.",
+    },
+  ],
+} as const;
+
+/**
+ * Headline metrics — the About proof band. The page's ONLY count-ups.
+ * Each stat appears exactly once here; other sections reference in prose only.
+ */
+export const stats: Stat[] = [
+  { value: 110000, suffix: "+", label: "Metric tons a year" },
+  { value: 168, prefix: "$", suffix: "M", label: "Revenue, FY 2022-23", sublabel: "₹1,400 Cr" },
+  { value: 58, suffix: "+", label: "Countries" },
+  { value: 186, suffix: "+", label: "Active clients" },
+];
+
+export interface Stat {
+  value: number;
+  prefix?: string;
+  suffix: string;
+  label: string;
+  /** Optional secondary mono line under the stat (e.g. INR equivalent). */
+  sublabel?: string;
+}
+
+/** 02 — What we do (Verticals). */
+export const verticalsIntro =
+  "Four ways petrochemicals move through Accord — from producer to plant gate.";
+
 export const verticals = [
   {
     id: "import",
     title: "Import & Distribution",
     blurb:
-      "Seamless international transactions, leveraging a network of global partners to move petrochemicals across borders reliably.",
+      "We import on our own account and hold duty-paid stock in India — so you buy in INR, in the quantity you need, when you need it.",
     icon: "Import",
   },
   {
     id: "indenting",
     title: "Indenting",
     blurb:
-      "Direct sales from overseas suppliers to customers in India — ensuring timely, efficient delivery while optimising supply-chain operations.",
+      "Direct contracts between producer and buyer at producer pricing — transparent commission, no middle inventory.",
     icon: "Handshake",
   },
   {
     id: "exports",
     title: "Exports",
     blurb:
-      "Consistent exports to more than five continents across the globe for a broad range of petrochemicals.",
+      "Indian-origin petrochemicals shipped to buyers on five continents — documentation, inspection and freight handled end to end.",
     icon: "Globe",
   },
   {
     id: "services",
     title: "Comprehensive Services",
     blurb:
-      "Clearing, storage, survey, insurance and logistics — guiding clients seamlessly at every critical juncture.",
+      "Customs clearing, bonded storage, survey, marine insurance and inland logistics — one desk accountable for the whole consignment.",
     icon: "Wrench",
   },
 ] as const;
 
-/** Headline metrics */
-export const stats = [
-  { value: 186, suffix: "+", label: "Satisfied Customers" },
-  { value: 58, suffix: "+", label: "Overseas Countries" },
-  { value: 20, suffix: "+", label: "Indian States & UTs" },
-  { value: 18600, suffix: "+", label: "Annual Volume (Metric Tons)" },
-] as const;
+/**
+ * CredibilityStrip — one line, mono voice. Memberships, logos and the
+ * testimonial are CLIENT-INPUT slots: render nothing while empty/null.
+ * Never invent certifications, logos or quotes.
+ */
+export const credibility: Credibility = {
+  line: "IEC-registered exporter · COA supplied with every consignment · Est. 2009, Mumbai",
+  memberships: [],
+  logos: [],
+  testimonial: null,
+};
 
-/** Product families */
+export interface Credibility {
+  line: string;
+  /** e.g. ["CHEMEXCIL", "FIEO"] — only when the client confirms. */
+  memberships: string[];
+  /** Client/principal logos — only with permission. { name, src } */
+  logos: { name: string; src: string }[];
+  /** One attributed quote — only when the client supplies it. */
+  testimonial: { quote: string; name: string; role: string } | null;
+}
+
+/** 03 — Products. */
+export const productsIntro =
+  "Eight product families, sourced producer-direct and delivered on spec — with COA on every lot.";
+
+/**
+ * Product-list PDF — CLIENT-INPUT slot. The "Download product list (PDF)"
+ * link renders only when this is a non-empty path/URL.
+ */
+export const productListPdf = "";
+
+/** Product families — slug feeds the enquiry pre-fill (#contact?product=<slug>). */
 export const products = [
   {
     name: "Acrylates & Monomers",
+    slug: "acrylates-monomers",
     desc: "Building-block acrylates and monomers for coatings, adhesives and polymers.",
   },
   {
     name: "Aromatics & Hydrocarbons",
+    slug: "aromatics-hydrocarbons",
     desc: "Benzene, toluene, xylene and solvent-grade hydrocarbon streams.",
   },
   {
     name: "Amines",
+    slug: "amines",
     desc: "Ethanolamines and specialty amines for gas treating and surfactants.",
   },
   {
     name: "Chlorinated Solvents & Chemicals",
+    slug: "chlorinated-solvents",
     desc: "High-purity chlorinated solvents for cleaning and synthesis.",
   },
   {
     name: "Glycols & Glycol Ethers",
+    slug: "glycols-glycol-ethers",
     desc: "MEG, DEG and glycol ethers for antifreeze, resins and formulations.",
   },
   {
     name: "OXO Alcohols",
+    slug: "oxo-alcohols",
     desc: "2-EH, n-butanol and iso-butanol for plasticisers and esters.",
   },
   {
     name: "Specialty Acrylates",
+    slug: "specialty-acrylates",
     desc: "Functional and multi-functional acrylates for UV-cure systems.",
   },
   {
-    name: "Others",
-    desc: "A wide basket of specialty and commodity petrochemicals on demand.",
+    name: "Custom Sourcing",
+    slug: "custom-sourcing",
+    desc: "Don't see your molecule? We source niche and campaign-quantity chemicals through our producer network — send the spec.",
   },
 ] as const;
 
-/** Industries served */
+/** 04 — Industries. */
+export const industriesIntro =
+  "Ten downstream industries buy through Accord — from paints and coatings to pharma and personal care.";
+
+/** Flat list — feeds the single slow ticker row (texture only). */
 export const industries = [
   "Paints & Coatings",
   "Adhesives & Sealants",
@@ -139,9 +279,82 @@ export const industries = [
 ] as const;
 
 /**
- * Growth story — reconstructed from the client's "Quantum of Volume in MTS and
- * Revenue" chart. volumeKT = thousand metric tons, revenueUSD = USD millions,
- * revenueINR = INR crore.
+ * Industry → product-family mapping grid. `families` entries are exact
+ * `products[].name` values — never invent families outside the eight.
+ */
+export const industriesDetail: IndustryDetail[] = [
+  {
+    name: "Paints & Coatings",
+    icon: "Paintbrush",
+    families: ["Acrylates & Monomers", "Glycols & Glycol Ethers", "Aromatics & Hydrocarbons"],
+  },
+  {
+    name: "Adhesives & Sealants",
+    icon: "Link",
+    families: ["Acrylates & Monomers", "Specialty Acrylates", "Aromatics & Hydrocarbons"],
+  },
+  {
+    name: "Pharmaceuticals",
+    icon: "Pill",
+    families: ["Chlorinated Solvents & Chemicals", "Glycols & Glycol Ethers", "Amines"],
+  },
+  {
+    name: "Textiles",
+    icon: "Shirt",
+    families: ["Glycols & Glycol Ethers", "Amines", "Aromatics & Hydrocarbons"],
+  },
+  {
+    name: "Construction",
+    icon: "HardHat",
+    families: ["Acrylates & Monomers", "Specialty Acrylates", "Glycols & Glycol Ethers"],
+  },
+  {
+    name: "Personal Care",
+    icon: "Sparkles",
+    families: ["Glycols & Glycol Ethers", "Amines", "Custom Sourcing"],
+  },
+  {
+    name: "Agrochemicals",
+    icon: "Sprout",
+    families: ["Amines", "Chlorinated Solvents & Chemicals", "Aromatics & Hydrocarbons"],
+  },
+  {
+    name: "Plastics & Polymers",
+    icon: "Hexagon",
+    families: ["Glycols & Glycol Ethers", "OXO Alcohols", "Acrylates & Monomers"],
+  },
+  {
+    name: "Automotive",
+    icon: "Car",
+    families: ["Glycols & Glycol Ethers", "OXO Alcohols", "Specialty Acrylates"],
+  },
+  {
+    name: "Inks & Printing",
+    icon: "Printer",
+    families: ["Specialty Acrylates", "Glycols & Glycol Ethers", "Aromatics & Hydrocarbons"],
+  },
+];
+
+export interface IndustryDetail {
+  name: string;
+  icon: string;
+  families: string[];
+}
+
+/** 05 — Growth → "The record". */
+export const growthCopy = {
+  eyebrow: "Track record",
+  heading: "The record",
+  intro:
+    "From 4,500 tonnes and $0.9M in our first year to 110,000 tonnes and $168M — every year on the record.",
+  caption: "FY 2009-10 to 2022-23, latest audited.",
+} as const;
+
+/**
+ * Growth story — real audited data from the client's "Quantum of Volume in
+ * MTS and Revenue" chart. volumeKT = thousand metric tons, revenueUSD = USD
+ * millions, revenueINR = INR crore. DO NOT EDIT — swap in FY 2023-24 /
+ * 2024-25 rows only when the client delivers them.
  */
 export const growth = [
   { year: "2009-10", volumeKT: 4.5, revenueUSD: 0.92, revenueINR: 4.23 },
@@ -160,21 +373,81 @@ export const growth = [
   { year: "2022-23", volumeKT: 110.2, revenueUSD: 168.3, revenueINR: 1400.01 },
 ] as const;
 
-export const aboutCopy = {
-  eyebrow: "Who We Are",
-  heading: "India's trusted name in petrochemical trade",
-  body: [
-    "Accord Chemical Corporation stands out as one of the largest petrochemical distribution companies — leading in the import, export and indenting of diverse petrochemicals from our Mumbai headquarters.",
-    "With an expansive nationwide presence and partners across 58+ countries, we excel at meeting the dynamic demands of the industry: dependable supply, transparent dealing and end-to-end logistics.",
-  ],
-  pillars: [
-    { title: "Established 2009", desc: "Over 15 years of uninterrupted, trusted trade." },
-    { title: "Global Network", desc: "Sourcing & selling across five continents." },
-    { title: "End-to-End", desc: "From customs clearing to last-mile delivery." },
-  ],
+/** 06 — GlobalPresence → "58 countries. One desk." */
+export const presenceCopy = {
+  eyebrow: "Presence",
+  heading: "58 countries. One desk.",
+  intro:
+    "Producers in Houston, Rotterdam, Shanghai and Singapore; buyers from São Paulo to Sydney — every lane cleared through Mumbai.",
+} as const;
+
+/** 07 — Process: "How a consignment moves." Quiet, mono numerals. */
+export const processCopy = {
+  eyebrow: "Process",
+  heading: "How a consignment moves",
+} as const;
+
+export const process: ProcessStep[] = [
+  {
+    step: "01",
+    title: "Enquire",
+    desc: "Send us the product, grade, volume and destination.",
+  },
+  {
+    step: "02",
+    title: "Quote",
+    desc: "Indent or import pricing within one business day.",
+  },
+  {
+    step: "03",
+    title: "Contract",
+    desc: "LC, DA or DP terms — COA and pre-shipment survey on every lot.",
+  },
+  {
+    step: "04",
+    title: "Deliver",
+    desc: "Customs cleared, insured and tracked to your gate.",
+  },
+];
+
+export interface ProcessStep {
+  step: string;
+  title: string;
+  desc: string;
+}
+
+/** 08 — Contact. */
+export const contactCopy = {
+  eyebrow: "Contact",
+  heading: "Tell us what you need moved.",
+  intro:
+    "Tell us the product, volume and destination — sourcing, indenting, export or logistics. Quotes within one business day.",
+} as const;
+
+/**
+ * Contact small print — CLIENT-INPUT slots. Each renders only when the
+ * client confirms its value; empty strings render nothing.
+ * e.g. gstin: "27XXXXX…", iec: "XXXXXXXXXX", hours: "Mon–Sat 9:30–18:30 IST"
+ */
+export const contactMeta = {
+  gstin: "",
+  iec: "",
+  hours: "",
+} as const;
+
+/** Footer — quiet, plus the red-field CTA band (the page's final flourish). */
+export const footerCopy = {
+  ctaHeadline: "Ready to move your next consignment?",
+  oneLiner:
+    "Mumbai-based petrochemical trading house — imports, exports and indenting across 58+ countries since 2009.",
+  /** Itarsia relationship unconfirmed — render as a plain credit line. */
+  byline: `Site by ${siteConfig.poweredBy}`,
+  productsCollapsedLabel: "View all products",
+  backToTop: "Back to top",
 } as const;
 
 export type Vertical = (typeof verticals)[number];
 export type Product = (typeof products)[number];
 export type GrowthPoint = (typeof growth)[number];
-export type Stat = (typeof stats)[number];
+export type Industry = (typeof industries)[number];
+export type NavItem = (typeof nav)[number];

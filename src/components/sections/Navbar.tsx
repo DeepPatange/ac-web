@@ -1,13 +1,20 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import { motion, useScroll, useMotionValueEvent } from "framer-motion";
 import { ArrowRight, Menu, X } from "lucide-react";
-import { nav } from "@/lib/site";
+import { nav, cta, hero, siteConfig } from "@/lib/site";
 import { TextRoll } from "@/components/ui/RollButton";
 import { cn } from "@/lib/utils";
+
+/** Wordmark split: first word emphasized, remainder muted. */
+const [brandLead, ...brandRestWords] = siteConfig.name.split(" ");
+const brandRest = brandRestWords.join(" ");
+
+const focusRing =
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accord-red focus-visible:ring-offset-2 focus-visible:ring-offset-ink";
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -30,12 +37,23 @@ export default function Navbar() {
     lastY.current = y;
   });
 
+  const close = useCallback(() => setOpen(false), []);
+
+  // Lock body scroll while the menu is open; Escape closes it.
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "";
-    return () => {
+    if (!open) return () => {
       document.body.style.overflow = "";
     };
-  }, [open]);
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") close();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = "";
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [open, close]);
 
   return (
     <motion.header
@@ -45,6 +63,7 @@ export default function Navbar() {
       className="fixed inset-x-0 top-0 z-40 mx-auto w-full max-w-[1560px] px-3 pt-3 sm:px-5 sm:pt-4"
     >
       <nav
+        aria-label="Primary"
         className={cn(
           "relative flex items-center justify-between gap-3 overflow-hidden rounded-2xl border border-white/10 px-2 py-2 pl-3 transition-[background-color,box-shadow] duration-500",
           scrolled
@@ -61,8 +80,11 @@ export default function Navbar() {
         {/* LEFT — logo mark + wordmark */}
         <Link
           href="#home"
-          aria-label="Accord Chemicals home"
-          className="group/logo relative flex items-center gap-2.5"
+          aria-label={`${siteConfig.name} — home`}
+          className={cn(
+            "group/logo relative flex items-center gap-2.5 rounded-xl",
+            focusRing
+          )}
         >
           <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-accord-red shadow-[0_6px_18px_-6px_rgba(225,27,34,0.9)] ring-1 ring-white/20 transition-transform duration-500 group-hover/logo:scale-105">
             <span className="text-[12px] font-bold tracking-tight text-white">
@@ -70,8 +92,8 @@ export default function Navbar() {
             </span>
           </span>
           <span className="hidden text-[15px] font-semibold leading-none tracking-tight text-white sm:inline">
-            Accord{" "}
-            <span className="font-normal text-steel-400">Chemicals</span>
+            {brandLead}{" "}
+            <span className="font-normal text-steel-400">{brandRest}</span>
           </span>
         </Link>
 
@@ -81,7 +103,10 @@ export default function Navbar() {
             <li key={item.href}>
               <Link
                 href={item.href}
-                className="relative rounded-full px-3.5 py-2 text-[13.5px] font-medium text-steel-300 transition-colors duration-300 hover:bg-white/[0.07] hover:text-white"
+                className={cn(
+                  "relative rounded-full px-3.5 py-2 text-[13.5px] font-medium text-steel-300 transition-colors duration-300 hover:bg-white/[0.07] hover:text-white",
+                  focusRing
+                )}
               >
                 {item.label}
               </Link>
@@ -89,12 +114,15 @@ export default function Navbar() {
           ))}
         </ul>
 
-        {/* RIGHT — CTA (desktop) */}
+        {/* RIGHT — primary CTA (desktop) */}
         <Link
-          href="#contact"
-          className="group hidden items-center gap-2.5 rounded-xl bg-accord-red py-2 pl-5 pr-2 text-[13px] font-medium text-white transition-colors duration-300 hover:bg-accord-redDark lg:flex"
+          href={cta.primary.href}
+          className={cn(
+            "group hidden items-center gap-2.5 rounded-xl bg-accord-red py-2 pl-5 pr-2 text-[13px] font-medium text-white transition-colors duration-300 hover:bg-accord-redDark lg:flex",
+            focusRing
+          )}
         >
-          <TextRoll text="Book a strategy call" />
+          <TextRoll text={cta.primary.label} />
           <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-white">
             <ArrowRight
               size={14}
@@ -109,7 +137,10 @@ export default function Navbar() {
           onClick={() => setOpen((v) => !v)}
           aria-label={open ? "Close menu" : "Open menu"}
           aria-expanded={open}
-          className="flex items-center gap-2 rounded-xl bg-accord-red px-4 py-2 text-[13px] font-medium text-white lg:hidden"
+          className={cn(
+            "flex items-center gap-2 rounded-xl bg-accord-red px-4 py-2 text-[13px] font-medium text-white lg:hidden",
+            focusRing
+          )}
         >
           {open ? <X size={16} /> : <Menu size={16} />}
           {open ? "Close" : "Menu"}
@@ -124,15 +155,19 @@ export default function Navbar() {
               "fixed inset-0 z-50 lg:hidden",
               open ? "pointer-events-auto" : "pointer-events-none"
             )}
+            aria-hidden={!open}
           >
             <div
-              onClick={() => setOpen(false)}
+              onClick={close}
               className={cn(
                 "absolute inset-0 bg-black/70 transition-opacity duration-500",
                 open ? "opacity-100" : "opacity-0"
               )}
             />
             <div
+              role="dialog"
+              aria-modal="true"
+              aria-label="Site menu"
               className={cn(
                 "glass-strong absolute inset-x-0 bottom-0 mx-3 mb-3 p-6 transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]",
                 open ? "translate-y-0" : "translate-y-full"
@@ -140,7 +175,7 @@ export default function Navbar() {
             >
               <span className="inline-flex items-center gap-2 rounded-full border border-white/10 px-3 py-1.5 text-[13px] text-steel-300">
                 <span className="h-1.5 w-1.5 rounded-full bg-accord-red" />
-                Mumbai · Global trade
+                {hero.eyebrow}
               </span>
 
               <ul className="mt-6 flex flex-col gap-1">
@@ -148,8 +183,12 @@ export default function Navbar() {
                   <li key={item.href}>
                     <Link
                       href={item.href}
-                      onClick={() => setOpen(false)}
-                      className="block py-2 text-[28px] font-medium leading-[32px] text-white"
+                      onClick={close}
+                      tabIndex={open ? 0 : -1}
+                      className={cn(
+                        "block rounded-lg py-2 text-[28px] font-medium leading-[32px] text-white",
+                        focusRing
+                      )}
                     >
                       {item.label}
                     </Link>
@@ -158,11 +197,15 @@ export default function Navbar() {
               </ul>
 
               <Link
-                href="#contact"
-                onClick={() => setOpen(false)}
-                className="group mt-6 flex items-center justify-between rounded-full bg-accord-red py-2 pl-6 pr-2 text-[14px] font-medium text-white transition-colors hover:bg-accord-redDark"
+                href={cta.primary.href}
+                onClick={close}
+                tabIndex={open ? 0 : -1}
+                className={cn(
+                  "group mt-6 flex items-center justify-between rounded-full bg-accord-red py-2 pl-6 pr-2 text-[14px] font-medium text-white transition-colors hover:bg-accord-redDark",
+                  focusRing
+                )}
               >
-                <TextRoll text="Book a strategy call" />
+                <TextRoll text={cta.primary.label} />
                 <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white">
                   <ArrowRight
                     size={16}

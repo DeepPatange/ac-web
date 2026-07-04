@@ -111,9 +111,71 @@
       0 18px 46px -26px rgba(0, 0, 0, 0.75);
   }
 
-  /* Section vertical rhythm */
+  /* Section vertical rhythm — legacy blanket tier (kept for back-compat). */
   .section {
     @apply relative py-20 sm:py-28 lg:py-32;
+  }
+
+  /* ==========================================================================
+     Redesign section tiers (brief §4.1) — quiet sections breathe, peaks get
+     their height from the pin, never from padding.
+     ========================================================================= */
+  .section-quiet {
+    @apply relative py-20 sm:py-24;
+  }
+
+  .section-peak {
+    @apply relative py-0;
+  }
+
+  /* ==========================================================================
+     Typography tiers (brief §3 — names are binding). Space Grotesk carries
+     all display type; Inter stays on body copy.
+     ========================================================================= */
+  .type-hero {
+    font-family: var(--font-display);
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    line-height: 1.02;
+    font-size: clamp(3.5rem, 8vw, 7rem);
+  }
+
+  .type-section {
+    font-family: var(--font-display);
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    line-height: 1.08;
+    font-size: clamp(2.25rem, 4.5vw, 3.75rem);
+  }
+
+  .type-card {
+    font-family: var(--font-display);
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    line-height: 1.25;
+    font-size: clamp(1.125rem, 1.5vw, 1.375rem);
+  }
+
+  /* ==========================================================================
+     Tonal zones (brief §2) — alternate base temperature per section so the
+     scroll has perceptible shifts. Static gradients only; never animated.
+     ========================================================================= */
+  .zone-warm {
+    background-color: #0b0b0d;
+    background-image: radial-gradient(
+      70% 55% at 78% 0%,
+      rgba(255, 90, 60, 0.055),
+      transparent 70%
+    );
+  }
+
+  .zone-cool {
+    background-color: #101014;
+    background-image: radial-gradient(
+      70% 55% at 22% 0%,
+      rgba(148, 163, 214, 0.05),
+      transparent 70%
+    );
   }
 }
 
@@ -157,6 +219,22 @@ footer[id] {
   .mask-fade-l {
     -webkit-mask-image: linear-gradient(to right, transparent 0%, black 44%);
     mask-image: linear-gradient(to right, transparent 0%, black 44%);
+  }
+}
+
+/* Reduced-motion kill-switch (brief §4.5): CSS loops stop dead; framer is
+   handled by <MotionConfig reducedMotion="user">; pinned scenes render their
+   static fallbacks; arcs render complete. */
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee,
+  .animate-pulse-ring,
+  .animate-shimmer,
+  .animate-fade-up {
+    animation: none !important;
+  }
+
+  html {
+    scroll-behavior: auto;
   }
 }
 

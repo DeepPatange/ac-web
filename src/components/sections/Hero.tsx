@@ -9,8 +9,9 @@ import {
   useReducedMotion,
   useInView,
 } from "framer-motion";
-import { siteConfig } from "@/lib/site";
-import { easeOut } from "@/lib/motion";
+import { siteConfig, hero, cta } from "@/lib/site";
+import { fadeSoft, stagger } from "@/lib/motion";
+import CharReveal from "@/components/ui/CharReveal";
 import RollButton from "@/components/ui/RollButton";
 
 /* The real Spline scene is client-only (WebGL). */
@@ -23,9 +24,17 @@ const SplineScene = dynamic(() => import("@/components/three/SplineScene"), {
 const LOCAL_SCENE =
   "/spline/hero_banner_for_transport_and_logistics_company_gmw_24_25.spline";
 
+/* CharReveal rhythm — shared so the accent span picks up exactly where the
+   leading words leave off (delay + wordIndex * beat + charIndex * stagger). */
+const H1_DELAY = 0.15;
+const H1_STAGGER = 0.04;
+const H1_BEAT = H1_STAGGER * 2.5;
+
 export default function Hero() {
-  const ref = useRef<HTMLDivElement>(null);
+  const ref = useRef<HTMLElement>(null);
   const prefersReduced = useReducedMotion();
+
+  /* §4.3 seam 3 — scrubbed exit. Progress 0→1 as the hero scrolls out. */
   const { scrollYProgress } = useScroll({
     target: ref,
     offset: ["start start", "end start"],
@@ -33,15 +42,26 @@ export default function Hero() {
 
   /* Keep the WebGL scene mounted the whole time (so it loads once and never
      reloads), but only let it RENDER while the hero is on/near screen — the
-     Spline app's loop is paused/resumed via the `active` prop below. This drops
-     the off-screen GPU cost without the reload-on-return that unmounting caused. */
+     Spline app's loop is paused/resumed via the `active` prop below. */
   const heroActive = useInView(ref, { margin: "150px 0px 150px 0px" });
 
-  const contentY = useTransform(scrollYProgress, [0, 1], [0, 80]);
-  const sceneY = useTransform(scrollYProgress, [0, 1], [0, 60]);
-  const sceneOpacity = useTransform(scrollYProgress, [0, 0.95], [1, 0]);
+  /* Headline block drifts up at 1.2× scroll speed (an extra −20vh over one
+     viewport of exit) while the Spline wrapper scales to ~1.06 and dims —
+     depth separation, transform/opacity only. */
+  const contentY = useTransform(scrollYProgress, [0, 1], ["0vh", "-20vh"]);
+  const sceneScale = useTransform(scrollYProgress, [0, 1], [1, 1.06]);
+  const sceneOpacity = useTransform(scrollYProgress, [0, 0.9], [1, 0.25]);
 
   const sceneSrc = siteConfig.splineSceneUrl || LOCAL_SCENE;
+
+  /* Split the headline around the accent word so only it renders red
+     (mobile contrast mandate); the copy itself stays in site.ts. */
+  const accentIdx = hero.headline.lastIndexOf(hero.headlineAccent);
+  const lead =
+    accentIdx >= 0 ? hero.headline.slice(0, accentIdx).trimEnd() : hero.headline;
+  const accent = accentIdx >= 0 ? hero.headline.slice(accentIdx) : "";
+  const leadWordCount = lead.split(/\s+/).filter(Boolean).length;
+  const accentDelay = H1_DELAY + leadWordCount * H1_BEAT;
 
   return (
     <section
@@ -49,25 +69,26 @@ export default function Hero() {
       ref={ref}
       className="relative flex min-h-[100svh] flex-col overflow-hidden bg-ink"
     >
-      {/* Full-bleed Spline port scene — dark and clearly visible (no white wash). */}
+      {/* Full-bleed Spline port scene — LOCKED: scene + text overlay only. */}
       <motion.div
-        style={prefersReduced ? undefined : { y: sceneY, opacity: sceneOpacity }}
-        className="pointer-events-none absolute inset-0 z-10"
+        style={
+          prefersReduced
+            ? undefined
+            : { scale: sceneScale, opacity: sceneOpacity }
+        }
+        className="pointer-events-none absolute inset-0 z-10 origin-center"
         aria-hidden
       >
-        {/* Natural size — fills the hero edge-to-edge, no zoom, no translate.
-            Mounted only while the hero is in view (stops the GPU loop after). */}
         <div className="relative h-full w-full">
           <SplineScene scene={sceneSrc} active={heroActive} />
         </div>
       </motion.div>
 
-      {/* Single legibility scrim — a top fade under the navbar, a left wash behind
-          the headline, and a bottom fade into the next section, all in ONE layer
-          (was three stacked full-bleed gradients = needless overdraw). */}
+      {/* Legibility scrim, desktop: top fade under the navbar, left wash behind
+          the headline block, bottom fade into About — one layer. */}
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 z-20"
+        className="pointer-events-none absolute inset-0 z-20 hidden sm:block"
         style={{
           background: [
             "linear-gradient(to bottom, rgba(11,11,13,0.7), transparent 26%)",
@@ -77,65 +98,126 @@ export default function Hero() {
         }}
       />
 
-      {/* Content pinned to the far top-left, snug under the fixed navbar. */}
-      <div className="relative z-30 w-full pl-5 pr-5 pt-20 sm:pl-8 sm:pt-24 lg:pl-12 lg:pt-28">
+      {/* Mobile scrim — ~0.9 ink behind the text block (headline contrast
+          ≥4.5:1 against the rendered scene is a QA gate). */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 z-20 sm:hidden"
+        style={{
+          background: [
+            "linear-gradient(to bottom, rgba(11,11,13,0.78), rgba(11,11,13,0.9) 34%, rgba(11,11,13,0.9) 72%, #0b0b0d)",
+          ].join(","),
+        }}
+      />
+
+      {/* Text overlay — eyebrow, H1, subtext, CTAs, trust chip. */}
+      <div className="relative z-30 flex w-full flex-1 items-center px-5 pb-28 pt-24 sm:px-8 sm:pt-28 lg:px-12">
         <motion.div
           style={prefersReduced ? undefined : { y: contentY }}
-          className="max-w-2xl"
+          className="max-w-4xl"
         >
           <motion.p
-            initial={{ opacity: 0, y: 14 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, ease: easeOut }}
-            className="mb-3 text-[13px] tracking-wide text-steel-300 sm:mb-4 sm:text-[14px]"
+            variants={fadeSoft}
+            initial="hidden"
+            animate="show"
+            className="mb-4 text-xs font-semibold uppercase tracking-[0.22em] text-accord-red sm:mb-5"
           >
-            {siteConfig.name}
+            {hero.eyebrow}
           </motion.p>
 
-          <h1 className="text-[clamp(1.9rem,7vw,3.3rem)] font-medium leading-[1.07] tracking-[-0.03em] text-white [text-shadow:0_2px_30px_rgba(11,11,13,0.65)] sm:text-[clamp(2.3rem,4.6vw,3.7rem)]">
-            <motion.span
-              initial={{ opacity: 0, y: 28 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, ease: easeOut, delay: 0.1 }}
-              className="inline-block"
-            >
-              Petrochemical trade,
-            </motion.span>
-            <br className="hidden sm:block" />
-            <span className="sm:hidden"> </span>
-            <motion.span
-              initial={{ opacity: 0, y: 28 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, ease: easeOut, delay: 0.24 }}
-              className="inline-block text-accord-red"
-            >
-              moved with precision.
-            </motion.span>
+          <h1
+            aria-label={hero.headline}
+            className="type-hero text-white [text-shadow:0_2px_30px_rgba(11,11,13,0.65)] max-sm:text-[2.6rem] max-sm:leading-[1.06]"
+          >
+            <span aria-hidden>
+              <CharReveal
+                as="span"
+                className="inline"
+                delay={H1_DELAY}
+                stagger={H1_STAGGER}
+              >
+                {lead}
+              </CharReveal>
+              {accent ? (
+                <>
+                  {" "}
+                  <CharReveal
+                    as="span"
+                    className="inline text-accord-red"
+                    delay={accentDelay}
+                    stagger={H1_STAGGER}
+                  >
+                    {accent}
+                  </CharReveal>
+                </>
+              ) : null}
+            </span>
           </h1>
 
           <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, ease: easeOut, delay: 0.42 }}
-            className="mt-6 flex flex-col gap-4 sm:mt-8 sm:flex-row sm:items-center sm:gap-5"
+            variants={stagger(0.12, 0.85)}
+            initial="hidden"
+            animate="show"
           >
-            <RollButton href="#products" label="Explore Products" />
+            <motion.p
+              variants={fadeSoft}
+              className="mt-5 max-w-xl text-base/relaxed text-steel-300 sm:mt-6"
+            >
+              {hero.subtext}
+            </motion.p>
 
-            <div className="glass flex items-center gap-2 self-start rounded-[6px] px-3 py-2">
-              <span className="h-1.5 w-1.5 rounded-full bg-accord-red" />
+            <motion.div
+              variants={fadeSoft}
+              className="mt-7 flex flex-col gap-4 sm:mt-9 sm:flex-row sm:items-center sm:gap-4"
+            >
+              <RollButton href={cta.primary.href} label={cta.primary.label} />
+              <RollButton
+                href={cta.secondary.href}
+                label={cta.secondary.label}
+                variant="outline"
+              />
+            </motion.div>
+
+            <motion.div
+              variants={fadeSoft}
+              className="glass mt-6 inline-flex items-center gap-2.5 rounded-[6px] px-3 py-2 sm:mt-7"
+            >
+              <span
+                className="h-1.5 w-1.5 shrink-0 rounded-full bg-accord-red"
+                aria-hidden
+              />
               <span className="text-[13px] font-medium text-white sm:text-[14px]">
-                Trusted since {siteConfig.established}
+                {hero.trustChip}
               </span>
-              <span className="rounded bg-accord-red px-2 py-0.5 text-[10px] font-semibold text-white sm:text-[11px]">
-                186+ clients
-              </span>
-            </div>
+            </motion.div>
           </motion.div>
         </motion.div>
       </div>
 
-      {/* Spacer fills the remaining viewport below the top-aligned copy. */}
-      <div className="relative flex-1" />
+      {/* Trade Arc scroll cue — 24px red stroke drawing downward on loop,
+          bottom-left. Static full stroke under reduced motion. */}
+      <div
+        aria-hidden
+        className="absolute bottom-7 left-5 z-30 sm:left-8 lg:left-12"
+      >
+        <span className="relative block h-6 w-px overflow-hidden bg-white/10">
+          {prefersReduced ? (
+            <span className="absolute inset-0 bg-accord-red" />
+          ) : (
+            <motion.span
+              className="absolute inset-0 bg-accord-red"
+              initial={{ y: "-100%" }}
+              animate={{ y: "100%" }}
+              transition={{
+                duration: 1.6,
+                ease: "easeInOut",
+                repeat: Infinity,
+                repeatDelay: 0.5,
+              }}
+            />
+          )}
+        </span>
+      </div>
     </section>
   );
 }

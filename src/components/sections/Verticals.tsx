@@ -1,6 +1,13 @@
 "use client";
 
-import { AnimatePresence, motion } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
+import {
+  AnimatePresence,
+  motion,
+  useMotionValueEvent,
+  useTransform,
+  type MotionValue,
+} from "framer-motion";
 
 import {
   HoverSlider,
@@ -10,10 +17,30 @@ import {
   useHoverSliderContext,
 } from "@/components/ui/animated-slideshow";
 import Container from "@/components/ui/Container";
+import PinnedScene from "@/components/ui/PinnedScene";
 import SectionHeading from "@/components/ui/SectionHeading";
-import { verticals } from "@/lib/site";
+import SectionSeam from "@/components/ui/SectionSeam";
+import { nav, verticals, verticalsIntro } from "@/lib/site";
 import { easeOut } from "@/lib/motion";
 import { cn } from "@/lib/utils";
+
+/**
+ * 02 — "What we do" (REDESIGN_BRIEF §4.2 PEAK 1 + §5).
+ *
+ * ~280vh pinned scene: scroll-progress quarters (0–.25/.25–.5/.5–.75/.75–1)
+ * auto-advance the four pillars via `useMotionValueEvent` (state changes only
+ * at quarter boundaries — never per frame), driving the existing clip-path
+ * image wipes and char-roll titles. On pointer-fine devices `mouseenter`
+ * temporarily overrides scroll until the next quarter boundary reclaims it;
+ * touch gets the full sequence from scroll alone. Reduced motion renders the
+ * static four-card fallback, fully revealed.
+ */
+
+const SECTION_ID = "what-we-do";
+
+/** Section H2 mirrors the nav label exactly (brief §5 — no copy drift). */
+const sectionTitle =
+  nav.find((item) => item.href === `#${SECTION_ID}`)?.label ?? "What we do";
 
 /* verticals[]: 0 = Import & Distribution, 1 = Indenting, 2 = Exports,
    3 = Comprehensive Services. */
@@ -28,36 +55,88 @@ const SLIDES = [
   { ...vIndent, image: img("photo-1516937941344-00b4e0337589") }, // refinery
   { ...vExport, image: img("photo-1578575437130-527eed3abbec") }, // container ship loading
   { ...vServices, image: img("photo-1513828583688-c52646db42da") }, // pipework
-];
+] as const;
 
-const titleClass =
-  "cursor-pointer whitespace-nowrap font-display text-[clamp(1.45rem,2.9vw,2.4rem)] font-semibold uppercase leading-[1.05] tracking-tight text-white";
+const QUARTER = SLIDES.length; // 4 — one progress quarter per pillar
 
-/* One title row — reads the active slide so its index turns red when active. */
-function PillarRow({ slide, index }: { slide: (typeof SLIDES)[number]; index: number }) {
+/** `(pointer: fine)` — gates the mouseenter override to mouse/trackpad. */
+function useIsPointerFine(): boolean {
+  const [fine, setFine] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(pointer: fine)");
+    setFine(mq.matches);
+    const onChange = (e: MediaQueryListEvent) => setFine(e.matches);
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, []);
+  return fine;
+}
+
+/**
+ * Re-plumbs the slideshow trigger from hover to scroll: maps pin progress
+ * quarters to the active slide. `changeSlide` (setState) fires ONLY when the
+ * quarter index actually changes — four times per pass, never per frame.
+ */
+function ScrollDriver({ progress }: { progress: MotionValue<number> }) {
+  const { changeSlide } = useHoverSliderContext();
+  const lastIndex = useRef(0);
+
+  useMotionValueEvent(progress, "change", (p) => {
+    const index = Math.min(QUARTER - 1, Math.max(0, Math.floor(p * QUARTER)));
+    if (index !== lastIndex.current) {
+      lastIndex.current = index;
+      changeSlide(index);
+    }
+  });
+
+  return null;
+}
+
+/**
+ * One pillar row — tracked mono red index tick + `.type-card` sentence-case
+ * char-roll title (the site's best micro-detail, kept). The visual char roll
+ * is aria-hidden; a plain sr-only line carries title + blurb so every pillar
+ * is readable without scroll or hover.
+ */
+function PillarRow({
+  slide,
+  index,
+}: {
+  slide: (typeof SLIDES)[number];
+  index: number;
+}) {
   const { activeSlide } = useHoverSliderContext();
   const active = activeSlide === index;
   return (
     <li className="flex items-baseline gap-4">
       <span
+        aria-hidden
         className={cn(
-          "shrink-0 font-mono text-xs transition-colors duration-300",
+          "shrink-0 font-mono text-xs tracking-widest transition-colors duration-300",
           active ? "text-accord-red" : "text-steel-600"
         )}
       >
         0{index + 1}
       </span>
-      <TextStaggerHover index={index} text={slide.title} className={titleClass} />
+      <span className="sr-only">
+        {slide.title} — {slide.blurb}
+      </span>
+      <TextStaggerHover
+        aria-hidden
+        index={index}
+        text={slide.title}
+        className="type-card cursor-pointer whitespace-nowrap text-white"
+      />
     </li>
   );
 }
 
-/* Active pillar's copy — crossfades in sync with the image reveal. */
-function ActiveCaption() {
+/** Active pillar's blurb — crossfades in sync with the image wipe. */
+function CaptionBody({ compact = false }: { compact?: boolean }) {
   const { activeSlide } = useHoverSliderContext();
   const active = SLIDES[activeSlide];
   return (
-    <div className="mt-9 max-w-md border-l-2 border-accord-red/60 pl-4">
+    <>
       <span className="font-mono text-[11px] tracking-[0.22em] text-accord-red">
         0{activeSlide + 1} / 0{SLIDES.length}
       </span>
@@ -68,60 +147,76 @@ function ActiveCaption() {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -6 }}
           transition={{ duration: 0.35, ease: easeOut }}
-          className="mt-2 text-sm leading-relaxed text-steel-300 sm:text-[15px]"
+          className={cn(
+            "mt-2 leading-relaxed text-steel-300",
+            compact ? "text-[13px] sm:text-sm" : "text-sm sm:text-[15px]"
+          )}
         >
           {active.blurb}
         </motion.p>
       </AnimatePresence>
-    </div>
+    </>
   );
 }
 
-export default function Verticals() {
+/** The pinned h-screen stage — receives the 0→1 pin progress. */
+function Stage({ progress }: { progress: MotionValue<number> }) {
+  const isPointerFine = useIsPointerFine();
+
+  // Pin release (brief §4.3.2): content settles −40px and dims to 80% as the
+  // scene ends and the next section slides over. Transform/opacity only.
+  const settleY = useTransform(progress, [0.92, 1], [0, -40]);
+  const settleOpacity = useTransform(progress, [0.92, 1], [1, 0.8]);
+
   return (
-    <section id="verticals" className="section noise relative overflow-hidden">
-      {/* Decorative background — frosted depth */}
-      <div aria-hidden className="pointer-events-none absolute inset-0">
-        <div
-          className="absolute inset-0 bg-grid-faint opacity-[0.4]"
-          style={{
-            maskImage:
-              "radial-gradient(ellipse 80% 60% at 50% 35%, black, transparent 75%)",
-            WebkitMaskImage:
-              "radial-gradient(ellipse 80% 60% at 50% 35%, black, transparent 75%)",
-          }}
-        />
-        <div className="absolute -top-24 left-1/2 h-[34rem] w-[34rem] -translate-x-1/2 rounded-full bg-accord-red/20 opacity-60 blur-[64px]" />
-        <div className="absolute bottom-0 right-[12%] h-[24rem] w-[24rem] rounded-full bg-accord-red/20 opacity-50 blur-[64px]" />
-      </div>
+    <motion.div
+      style={{ y: settleY, opacity: settleOpacity }}
+      className="relative flex h-full flex-col"
+    >
+      {/* ONE static blur blob — never animated (brief §2 / §7.4). */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -top-24 right-[8%] h-[26rem] w-[26rem] rounded-full bg-accord-red/10 blur-3xl"
+      />
 
-      <Container className="relative">
+      <Container className="relative flex min-h-0 flex-1 flex-col justify-center pb-6 pt-20 sm:pt-24 lg:pb-10">
         <SectionHeading
-          number="01"
-          eyebrow="What We Do"
-          title="Our Verticals"
-          intro="Four pillars that move petrochemicals from source to destination — reliably, transparently, worldwide. Hover a pillar to explore it."
-          invert
+          number="02"
+          title={sectionTitle}
+          intro={verticalsIntro}
         />
 
-        <HoverSlider className="mt-12 lg:mt-16">
-          <div className="grid items-center gap-10 lg:grid-cols-2 lg:gap-16">
-            {/* LEFT — pillar titles + active caption */}
-            <div>
-              <ul className="flex flex-col gap-5 sm:gap-6">
+        <HoverSlider className="mt-6 flex min-h-0 flex-1 flex-col sm:mt-8 lg:mt-12">
+          <ScrollDriver progress={progress} />
+
+          <div className="grid min-h-0 flex-1 grid-rows-[auto_minmax(0,1fr)] gap-6 lg:grid-cols-2 lg:grid-rows-[minmax(0,1fr)] lg:items-center lg:gap-16">
+            {/* Pillar list + caption. Hover override is pointer-fine only —
+                on touch the list is inert and scroll owns the sequence. */}
+            <div className="lg:self-center">
+              <ul
+                className={cn(
+                  "flex flex-col gap-3 sm:gap-4 lg:gap-6",
+                  !isPointerFine && "pointer-events-none"
+                )}
+              >
                 {SLIDES.map((slide, index) => (
-                  <PillarRow key={slide.title} slide={slide} index={index} />
+                  <PillarRow key={slide.id} slide={slide} index={index} />
                 ))}
               </ul>
-              <ActiveCaption />
+              <div
+                aria-hidden
+                className="mt-8 hidden min-h-[6.5rem] max-w-md border-l-2 border-accord-red/60 pl-4 lg:block"
+              >
+                <CaptionBody />
+              </div>
             </div>
 
-            {/* RIGHT — image reveal */}
-            <div className="relative h-[26rem] overflow-hidden rounded-3xl border border-white/10 shadow-[0_40px_90px_-50px_rgba(0,0,0,0.9)] sm:h-[30rem] lg:h-[34rem]">
+            {/* Image wipe stack — the kept clip-path reveals. */}
+            <div className="relative min-h-[8rem] overflow-hidden rounded-3xl border border-white/10 shadow-[0_40px_90px_-50px_rgba(0,0,0,0.9)] lg:h-full lg:max-h-[30rem] lg:self-center">
               <HoverSliderImageWrap className="h-full w-full">
                 {SLIDES.map((slide, index) => (
                   <HoverSliderImage
-                    key={slide.title}
+                    key={slide.id}
                     index={index}
                     imageUrl={slide.image}
                     src={slide.image}
@@ -136,10 +231,63 @@ export default function Verticals() {
               {/* Brand tint + legibility scrim (clipped by the rounded frame) */}
               <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink via-ink/30 to-ink/10" />
               <div className="pointer-events-none absolute inset-0 bg-accord-red/15 mix-blend-overlay" />
+
+              {/* Mobile caption — overlaid on the image to keep the whole
+                  scene inside one viewport at 375px. */}
+              <div
+                aria-hidden
+                className="absolute inset-x-0 bottom-0 border-l-2 border-accord-red/60 p-4 pl-5 lg:hidden"
+              >
+                <CaptionBody compact />
+              </div>
             </div>
           </div>
         </HoverSlider>
       </Container>
+    </motion.div>
+  );
+}
+
+/** Reduced-motion fallback — static, unpinned, all four pillars revealed. */
+function ReducedVerticals() {
+  return (
+    <div className="relative py-20 sm:py-24">
+      <Container>
+        <SectionHeading
+          number="02"
+          title={sectionTitle}
+          intro={verticalsIntro}
+        />
+        <div className="mt-10 grid gap-5 sm:grid-cols-2">
+          {SLIDES.map((slide, index) => (
+            <article
+              key={slide.id}
+              className="glass-card flex flex-col gap-3 p-6"
+            >
+              <span className="font-mono text-xs tracking-widest text-accord-red">
+                0{index + 1}
+              </span>
+              <h3 className="type-card text-white">{slide.title}</h3>
+              <p className="text-sm leading-relaxed text-steel-300">
+                {slide.blurb}
+              </p>
+            </article>
+          ))}
+        </div>
+      </Container>
+    </div>
+  );
+}
+
+export default function Verticals() {
+  return (
+    <section id={SECTION_ID} className="section-peak zone-cool noise relative">
+      {/* Trade Arc boundary — node lands at the section-number chip. */}
+      <SectionSeam number="02" />
+
+      <PinnedScene height="280vh" reducedFallback={<ReducedVerticals />}>
+        {(progress) => <Stage progress={progress} />}
+      </PinnedScene>
     </section>
   );
 }

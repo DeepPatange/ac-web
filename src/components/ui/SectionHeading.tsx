@@ -1,12 +1,15 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { fadeUp, inView } from "@/lib/motion";
+import WordReveal from "@/components/ui/WordReveal";
+import { fadeSoft, inView } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 
 /**
- * Agency-style section header: a numbered badge row (number chip + bordered pill
- * label) above a large, medium-weight heading. Dark theme, brand-red accents.
+ * Section header in the redesign type system (brief §3): mono index chip +
+ * red eyebrow row, `.type-section` H2 revealed word-by-word (WordReveal),
+ * quiet `fadeSoft` intro. Used by every numbered section — this is where the
+ * typography tiers propagate from.
  */
 export default function SectionHeading({
   eyebrow,
@@ -33,43 +36,42 @@ export default function SectionHeading({
     >
       {(number || eyebrow) && (
         <motion.div
-          variants={fadeUp}
+          variants={fadeSoft}
           initial="hidden"
           whileInView="show"
           viewport={inView}
           className="mb-6 flex items-center gap-3 sm:mb-8"
         >
           {number && (
-            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-accord-red text-[11px] font-semibold text-white sm:h-7 sm:w-7 sm:text-[12px]">
+            <span className="flex h-7 min-w-7 items-center justify-center rounded-full border border-accord-red/25 bg-accord-red/[0.14] px-2 font-mono text-[11px] tracking-widest text-accord-red">
               {number}
             </span>
           )}
           {eyebrow && (
-            <span className="rounded-full border border-white/15 px-3 py-1 text-[12px] font-medium text-steel-200 sm:px-4 sm:py-1.5 sm:text-[13px]">
+            <span className="text-xs font-semibold uppercase tracking-[0.22em] text-accord-red">
               {eyebrow}
             </span>
           )}
         </motion.div>
       )}
 
-      <motion.h2
-        variants={fadeUp}
-        initial="hidden"
-        whileInView="show"
-        viewport={inView}
-        transition={{ delay: 0.05 }}
-        className="text-[clamp(1.5rem,4vw,3.2rem)] font-medium leading-[1.12] tracking-[-0.02em] text-white"
+      <WordReveal
+        as="h2"
+        className={cn(
+          "type-section max-w-4xl text-balance text-white",
+          align === "center" ? "mx-auto" : ""
+        )}
       >
         {title}
-      </motion.h2>
+      </WordReveal>
 
       {intro && (
         <motion.p
-          variants={fadeUp}
+          variants={fadeSoft}
           initial="hidden"
           whileInView="show"
           viewport={inView}
-          transition={{ delay: 0.1 }}
+          transition={{ delay: 0.15 }}
           className={cn(
             "mt-5 max-w-2xl text-base leading-relaxed text-steel-300 sm:text-lg",
             align === "center" ? "mx-auto" : ""
