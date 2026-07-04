@@ -184,11 +184,13 @@ footer[id] {
   scroll-margin-top: 5.5rem;
 }
 
-/* Recolor the Spline port scene from its native blue into the Accord red
-   palette while keeping it dark and clearly visible (no brightening — the
-   scene is meant to read as a moody, dark hero). hue-rotate is GPU-cheap. */
+/* Recolor the Spline port scene into a punchy Accord RED DUOTONE — white
+   highlights, vivid-red mid-tones, black shadows (no blue, no magenta).
+   grayscale→sepia→hue-rotate maps every colour onto a single red hue;
+   saturate makes it pop; contrast deepens the blacks. GPU-cheap. */
 .spline-tint canvas {
-  filter: hue-rotate(143deg) saturate(1.08) brightness(1.02) contrast(1.05);
+  filter: grayscale(1) sepia(1) saturate(3.8) hue-rotate(-47deg)
+    brightness(0.97) contrast(1.3);
 }
 
 @layer utilities {

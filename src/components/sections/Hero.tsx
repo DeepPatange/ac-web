@@ -105,18 +105,15 @@ export default function Hero() {
         )}
       </motion.div>
 
-      {/* Legibility scrim for the small top-left text over the full-bleed
-          scene: top fade under the navbar, left wash behind the text, bottom
-          fade into About. */}
+      {/* No full-bleed overlay — the scene pops. Only a small localized wash
+          in the top-left corner keeps the text legible, plus a thin bottom fade
+          so the hero blends into the section below. */}
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 z-20 hidden sm:block"
         style={{
-          background: [
-            "linear-gradient(to bottom, rgba(11,11,13,0.72), transparent 30%)",
-            "linear-gradient(to right, rgba(11,11,13,0.85), rgba(11,11,13,0.35) 40%, transparent 60%)",
-            "linear-gradient(to top, #0b0b0d, transparent 16%)",
-          ].join(","),
+          background:
+            "radial-gradient(105% 88% at -10% -12%, rgba(11,11,13,0.94), rgba(11,11,13,0.5) 36%, transparent 56%), linear-gradient(to top, #0b0b0d, transparent 12%)",
         }}
       />
       <div
@@ -124,7 +121,7 @@ export default function Hero() {
         className="pointer-events-none absolute inset-0 z-20 sm:hidden"
         style={{
           background:
-            "linear-gradient(to bottom, rgba(11,11,13,0.9), rgba(11,11,13,0.6) 46%, transparent 78%), linear-gradient(to top, #0b0b0d, transparent 12%)",
+            "linear-gradient(to bottom, rgba(11,11,13,0.9), rgba(11,11,13,0.4) 44%, transparent 66%), linear-gradient(to top, #0b0b0d, transparent 10%)",
         }}
       />
 
