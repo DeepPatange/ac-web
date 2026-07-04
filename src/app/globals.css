@@ -3,11 +3,10 @@
 @tailwind utilities;
 
 @layer base {
-  :root {
-    --font-sans: "Inter", system-ui, sans-serif;
-    --font-display: "Space Grotesk", var(--font-sans);
-    --font-mono: "JetBrains Mono", ui-monospace, monospace;
-  }
+  /* NOTE: --font-sans / --font-display / --font-mono are provided by next/font
+     variables on <html> (layout.tsx). Do NOT redefine them here — a :root
+     redefinition points at plain family names that next/font never registers,
+     silently dropping every font to the system fallback. */
 
   * {
     @apply border-white/10;
