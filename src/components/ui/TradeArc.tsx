@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import {
   motion,
   useMotionValue,
@@ -16,9 +17,12 @@ export type ArcPoint = { x: number; y: number };
  * glowing node. Low-level primitive consumed by SectionSeam, the About orbit,
  * the Footer convergence and GlobalPresence.
  *
- * - Coordinates are in a 0–100 × 0–100 box stretched to fill the wrapper
- *   (`preserveAspectRatio="none"`); stroke width stays constant via
- *   `vectorEffect="non-scaling-stroke"`.
+ * - Coordinates are in a 0–100 × 0–100 box mapped onto the wrapper's measured
+ *   pixel size, and the path is built in pixel space. This is deliberate:
+ *   the earlier `preserveAspectRatio="none"` + `non-scaling-stroke` approach
+ *   breaks framer-motion's `pathLength` dash normalization in Chromium (the
+ *   dash pattern repeats along the path), rendering a partially-drawn arc as
+ *   scattered dashes instead of one continuous stroke.
  * - `progress` (0→1 MotionValue) scrubs the stroke's `pathLength` —
  *   transform/opacity only, NO SVG filters. The glow is a second, wider,
  *   low-opacity stroke plus a static box-shadow on the node.
@@ -41,11 +45,11 @@ export default function TradeArc({
   from?: ArcPoint;
   /** End point, 0–100 box units. */
   to?: ArcPoint;
-  /** Bow height: control point offset (+ bows up, − bows down). */
+  /** Bow height in box units (+ bows up, − bows down). */
   curve?: number;
   /** Where the node sits along the curve, 0–1 (default: the end). */
   nodeAt?: number;
-  /** Stroke width in px (non-scaling). */
+  /** Stroke width in px. */
   strokeWidth?: number;
   /** Node diameter in px. */
   nodeSize?: number;
@@ -56,14 +60,29 @@ export default function TradeArc({
   const complete = useMotionValue(1);
   const p = reduced ? complete : progress;
 
-  // Quadratic bezier: control point = midpoint lifted by `curve`.
+  const wrapRef = useRef<HTMLSpanElement>(null);
+  const [size, setSize] = useState<{ w: number; h: number } | null>(null);
+
+  useEffect(() => {
+    const el = wrapRef.current;
+    if (!el) return;
+    const measure = () => {
+      const { width, height } = el.getBoundingClientRect();
+      if (width > 0 && height > 0) setSize({ w: width, h: height });
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  // Quadratic bezier: control point = midpoint lifted by `curve` (box units).
   const ctrl: ArcPoint = {
     x: (from.x + to.x) / 2,
     y: (from.y + to.y) / 2 - curve,
   };
-  const d = `M ${from.x} ${from.y} Q ${ctrl.x} ${ctrl.y} ${to.x} ${to.y}`;
 
-  // Node position: point on the bezier at t = nodeAt (clamped).
+  // Node position: point on the bezier at t = nodeAt (clamped), box units.
   const t = Math.min(1, Math.max(0.05, nodeAt));
   const omt = 1 - t;
   const node: ArcPoint = {
@@ -75,36 +94,44 @@ export default function TradeArc({
   const nodeOpacity = useTransform(p, [Math.max(0, t - 0.12), t], [0, 1]);
   const nodeScale = useTransform(p, [Math.max(0, t - 0.12), t], [0.4, 1]);
 
+  // Path in pixel space (only once the wrapper is measured).
+  const px = (pt: ArcPoint) =>
+    size ? { x: (pt.x / 100) * size.w, y: (pt.y / 100) * size.h } : pt;
+  const pFrom = px(from);
+  const pCtrl = px(ctrl);
+  const pTo = px(to);
+  const d = `M ${pFrom.x.toFixed(1)} ${pFrom.y.toFixed(1)} Q ${pCtrl.x.toFixed(1)} ${pCtrl.y.toFixed(1)} ${pTo.x.toFixed(1)} ${pTo.y.toFixed(1)}`;
+
   return (
     <span
+      ref={wrapRef}
       aria-hidden
       className={cn("pointer-events-none absolute inset-0 block", className)}
     >
-      <svg
-        className="h-full w-full overflow-visible"
-        viewBox="0 0 100 100"
-        preserveAspectRatio="none"
-        fill="none"
-      >
-        {/* faked glow: wider, low-opacity twin stroke (no SVG filters) */}
-        <motion.path
-          d={d}
-          stroke="#E11B22"
-          strokeOpacity={0.22}
-          strokeWidth={strokeWidth * 3.5}
-          strokeLinecap="round"
-          vectorEffect="non-scaling-stroke"
-          style={{ pathLength: p }}
-        />
-        <motion.path
-          d={d}
-          stroke="#E11B22"
-          strokeWidth={strokeWidth}
-          strokeLinecap="round"
-          vectorEffect="non-scaling-stroke"
-          style={{ pathLength: p }}
-        />
-      </svg>
+      {size && (
+        <svg
+          className="h-full w-full overflow-visible"
+          viewBox={`0 0 ${size.w} ${size.h}`}
+          fill="none"
+        >
+          {/* faked glow: wider, low-opacity twin stroke (no SVG filters) */}
+          <motion.path
+            d={d}
+            stroke="#E11B22"
+            strokeOpacity={0.22}
+            strokeWidth={strokeWidth * 3.5}
+            strokeLinecap="round"
+            style={{ pathLength: p }}
+          />
+          <motion.path
+            d={d}
+            stroke="#E11B22"
+            strokeWidth={strokeWidth}
+            strokeLinecap="round"
+            style={{ pathLength: p }}
+          />
+        </svg>
+      )}
       {showNode && (
         <motion.span
           className="absolute block rounded-full bg-accord-red"
