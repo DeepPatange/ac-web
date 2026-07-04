@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import { motion, useTransform, type MotionValue } from "framer-motion";
 import { ArrowUpRight, FileDown } from "lucide-react";
 import Container from "@/components/ui/Container";
@@ -150,8 +149,13 @@ function EnquireLink({
   name: string;
   className?: string;
 }) {
+  // Plain <a>, not next/link: this is an in-page hash anchor with a query
+  // ("#contact?product=…"). next/link would intercept the click and update the
+  // hash via the router WITHOUT firing a native `hashchange`, so the Contact
+  // form's pre-fill listener would never run. A plain anchor lets the global
+  // SmoothScroll handler set location.hash and fire hashchange correctly.
   return (
-    <Link
+    <a
       href={`#contact?product=${slug}`}
       aria-label={`${cta.enquire} — ${name}`}
       className={cn(
@@ -165,7 +169,7 @@ function EnquireLink({
         aria-hidden
         className="transition-transform duration-300 group-hover/enq:-translate-y-0.5 group-hover/enq:translate-x-0.5"
       />
-    </Link>
+    </a>
   );
 }
 
