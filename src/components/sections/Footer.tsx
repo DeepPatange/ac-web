@@ -299,6 +299,20 @@ export default function Footer() {
           </motion.div>
         </motion.div>
 
+        {/* ── Oversized brand watermark — the footer signature ── */}
+        <motion.div
+          aria-hidden
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true, amount: 0.4 }}
+          transition={{ duration: 0.8 }}
+          className="relative select-none overflow-hidden pb-2 pt-2"
+        >
+          <span className="block w-full bg-gradient-to-b from-white/[0.10] to-white/[0.02] bg-clip-text text-center font-display text-[clamp(3.25rem,23vw,15rem)] font-bold uppercase leading-[0.82] tracking-[-0.04em] text-transparent">
+            Accord
+          </span>
+        </motion.div>
+
         {/* ── Bottom bar: legal line (mono voice) + byline + back-to-top ── */}
         <div className="flex flex-col items-center justify-between gap-5 border-t border-white/10 py-8 text-center sm:flex-row sm:text-left">
           <p className="font-mono text-[11px] leading-relaxed tracking-wider text-steel-400">
