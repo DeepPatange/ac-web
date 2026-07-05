@@ -203,13 +203,13 @@ export default function Footer() {
               href="/"
               className="inline-flex items-center gap-3 font-display text-2xl font-semibold tracking-tight focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accord-red rounded-sm"
             >
-              <span className="relative flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white ring-1 ring-white/15">
+              <span className="relative flex h-12 w-12 shrink-0 items-center justify-center">
                 <Image
                   src="/logo.png"
                   alt={siteConfig.name}
                   fill
-                  sizes="44px"
-                  className="object-contain p-1"
+                  sizes="48px"
+                  className="object-contain"
                 />
               </span>
               <span>

@@ -96,14 +96,14 @@ export default function Navbar() {
             focusRing
           )}
         >
-          <span className="relative flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl bg-white shadow-[0_6px_18px_-6px_rgba(0,0,0,0.55)] ring-1 ring-white/20 transition-transform duration-500 group-hover/logo:scale-105">
+          <span className="relative flex h-11 w-11 items-center justify-center transition-transform duration-500 group-hover/logo:scale-105">
             <Image
               src="/logo.png"
               alt={siteConfig.name}
               fill
-              sizes="40px"
+              sizes="44px"
               priority
-              className="object-contain p-1"
+              className="object-contain"
             />
           </span>
           <span className="hidden text-[15px] font-semibold leading-none tracking-tight text-white sm:inline">
