@@ -184,11 +184,12 @@ footer[id] {
   scroll-margin-top: 5.5rem;
 }
 
-/* Recolor the Spline port scene into the exact Accord palette via an SVG
-   tritone filter (see #accord-tritone in Hero): shadows → red #F3122F,
-   mid-tones → grey #C5C5C4, highlights → white #FEFEFE. */
+/* Recolor the Spline port scene from its native blue into the Accord red
+   palette while keeping it dark and clearly visible (no brightening — the
+   scene is meant to read as a moody, dark hero). This is the original
+   first blue→red tint. hue-rotate is GPU-cheap. */
 .spline-tint canvas {
-  filter: url(#accord-tritone);
+  filter: hue-rotate(143deg) saturate(1.08) brightness(1.02) contrast(1.05);
 }
 
 @layer utilities {
