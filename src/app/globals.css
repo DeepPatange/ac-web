@@ -172,11 +172,11 @@ footer[id] {
   scroll-margin-top: 5.5rem;
 }
 
-/* Recolour the Spline port scene into the site's white / red / black theme via
-   an SVG tritone (#accord-tritone, defined in layout.tsx): sea + shadows → black,
-   dock + containers → brand red, ships + cranes + highlights → white. */
+/* The original, first blue→red tint (from the agency redesign). A single
+   hue-rotate swings the scene's native blue toward the Accord red while keeping
+   its full depth and detail — GPU-cheap, no posterisation. */
 .spline-tint canvas {
-  filter: url(#accord-tritone);
+  filter: hue-rotate(143deg) saturate(1.08) brightness(1.02) contrast(1.05);
 }
 
 @layer utilities {
