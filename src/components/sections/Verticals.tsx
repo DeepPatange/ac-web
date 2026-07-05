@@ -19,7 +19,7 @@ import {
 import Container from "@/components/ui/Container";
 import PinnedScene from "@/components/ui/PinnedScene";
 import SectionHeading from "@/components/ui/SectionHeading";
-import { nav, verticals, verticalsIntro } from "@/lib/site";
+import { verticals, verticalsIntro } from "@/lib/site";
 import { easeOut } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 
@@ -37,9 +37,9 @@ import { cn } from "@/lib/utils";
 
 const SECTION_ID = "what-we-do";
 
-/** Section H2 mirrors the nav label exactly (brief §5 — no copy drift). */
-const sectionTitle =
-  nav.find((item) => item.href === `#${SECTION_ID}`)?.label ?? "What we do";
+/** Section H2. (Nav "Services" now routes to the dedicated /services page, so
+    this on-home section keeps its own title.) */
+const sectionTitle = "What we do";
 
 /* verticals[]: 0 = Import & Distribution, 1 = Indenting, 2 = Exports,
    3 = Comprehensive Services. */
