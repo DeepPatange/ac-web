@@ -177,7 +177,7 @@ footer[id] {
    scene is meant to read as a moody, dark hero). This is the original
    first blue→red tint. hue-rotate is GPU-cheap. */
 .spline-tint canvas {
-  filter: hue-rotate(143deg) saturate(1.08) brightness(1.02) contrast(1.05);
+  filter: hue-rotate(143deg) saturate(1.5) brightness(1.22) contrast(1);
 }
 
 @layer utilities {

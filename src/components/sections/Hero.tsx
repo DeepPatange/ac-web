@@ -118,7 +118,7 @@ export default function Hero() {
         className="pointer-events-none absolute inset-0 z-20 hidden sm:block"
         style={{
           background:
-            "linear-gradient(to right, rgba(11,11,13,0.9) 0%, rgba(11,11,13,0.72) 34%, rgba(11,11,13,0.45) 54%, rgba(11,11,13,0.12) 70%, transparent 82%), linear-gradient(to top, #0b0b0d, transparent 14%)",
+            "linear-gradient(to right, rgba(11,11,13,0.82) 0%, rgba(11,11,13,0.55) 32%, rgba(11,11,13,0.28) 52%, rgba(11,11,13,0.06) 70%, transparent 82%), linear-gradient(to top, #0b0b0d, transparent 12%)",
         }}
       />
       <div
