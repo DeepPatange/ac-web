@@ -61,14 +61,19 @@ export default function Hero() {
   const sceneScale = useTransform(scrollYProgress, [0, 1], [1, 1.06]);
   const sceneOpacity = useTransform(scrollYProgress, [0, 0.9], [1, 0.25]);
 
-  /* Split the headline around the accent word so only it renders red
-     (mobile contrast mandate); the copy itself stays in site.ts. */
+  /* Big two-line headline. The accent (site.ts headlineAccent) renders red and
+     sits at the end of line two; the remaining words balance across two lines.
+     Line 1 = first half of the lead, line 2 = rest of the lead + red accent. */
   const accentIdx = hero.headline.lastIndexOf(hero.headlineAccent);
   const lead =
     accentIdx >= 0 ? hero.headline.slice(0, accentIdx).trimEnd() : hero.headline;
   const accent = accentIdx >= 0 ? hero.headline.slice(accentIdx) : "";
-  const leadWordCount = lead.split(/\s+/).filter(Boolean).length;
-  const accentDelay = H1_DELAY + leadWordCount * H1_BEAT;
+  const leadWords = lead.split(/\s+/).filter(Boolean);
+  const splitAt = Math.ceil(leadWords.length / 2);
+  const line1 = leadWords.slice(0, splitAt).join(" ");
+  const line2Lead = leadWords.slice(splitAt).join(" ");
+  const line2Delay = H1_DELAY + (line1.length + 1) * H1_STAGGER;
+  const accentDelay = line2Delay + (line2Lead.length + 1) * H1_STAGGER;
 
   return (
     <section
@@ -113,7 +118,7 @@ export default function Hero() {
         className="pointer-events-none absolute inset-0 z-20 hidden sm:block"
         style={{
           background:
-            "linear-gradient(to right, rgba(11,11,13,0.82) 0%, rgba(11,11,13,0.5) 28%, rgba(11,11,13,0.15) 46%, transparent 60%), linear-gradient(to top, #0b0b0d, transparent 14%)",
+            "linear-gradient(to right, rgba(11,11,13,0.9) 0%, rgba(11,11,13,0.72) 34%, rgba(11,11,13,0.45) 54%, rgba(11,11,13,0.12) 70%, transparent 82%), linear-gradient(to top, #0b0b0d, transparent 14%)",
         }}
       />
       <div
@@ -129,7 +134,7 @@ export default function Hero() {
       <div className="relative z-30 px-5 pt-24 sm:px-8 sm:pt-28 lg:px-12 lg:pt-32">
         <motion.div
           style={prefersReduced ? undefined : { y: contentY }}
-          className="max-w-md sm:max-w-lg"
+          className="max-w-2xl sm:max-w-3xl lg:max-w-5xl"
         >
           <motion.p
             variants={fadeSoft}
@@ -142,29 +147,38 @@ export default function Hero() {
 
           <h1
             aria-label={hero.headline}
-            className="font-display font-semibold tracking-[-0.02em] text-white [text-shadow:0_2px_24px_rgba(11,11,13,0.6)] text-[2rem] leading-[1.05] sm:text-[2.5rem] lg:text-[2.9rem]"
+            className="font-display font-semibold tracking-[-0.025em] text-white [text-shadow:0_2px_30px_rgba(11,11,13,0.85)] text-[clamp(2.5rem,7.4vw,4.6rem)] leading-[1.0]"
           >
-            <span aria-hidden>
+            <span aria-hidden className="block">
               <CharReveal
                 as="span"
                 className="inline"
                 delay={H1_DELAY}
                 stagger={H1_STAGGER}
               >
-                {lead}
+                {line1}
               </CharReveal>
+            </span>
+            <span aria-hidden className="block">
+              {line2Lead ? (
+                <CharReveal
+                  as="span"
+                  className="inline"
+                  delay={line2Delay}
+                  stagger={H1_STAGGER}
+                >
+                  {line2Lead}
+                </CharReveal>
+              ) : null}
               {accent ? (
-                <>
-                  {" "}
-                  <CharReveal
-                    as="span"
-                    className="inline text-accord-red"
-                    delay={accentDelay}
-                    stagger={H1_STAGGER}
-                  >
-                    {accent}
-                  </CharReveal>
-                </>
+                <CharReveal
+                  as="span"
+                  className={line2Lead ? "ml-[0.3em] inline text-accord-red" : "inline text-accord-red"}
+                  delay={accentDelay}
+                  stagger={H1_STAGGER}
+                >
+                  {accent}
+                </CharReveal>
               ) : null}
             </span>
           </h1>
