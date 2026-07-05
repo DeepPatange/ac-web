@@ -3,7 +3,6 @@
 import { motion } from "framer-motion";
 import Container from "@/components/ui/Container";
 import SectionHeading from "@/components/ui/SectionHeading";
-import SectionSeam from "@/components/ui/SectionSeam";
 import { fadeSoft, inView, stagger } from "@/lib/motion";
 import { process as processSteps, processCopy } from "@/lib/site";
 
@@ -23,7 +22,6 @@ export default function Process() {
   return (
     <section id="process" className="section-quiet zone-warm noise relative overflow-hidden">
       {/* Trade Arc boundary — full-bleed, self-centers to max-w-container. */}
-      <SectionSeam number="07" />
 
       <Container>
         <SectionHeading

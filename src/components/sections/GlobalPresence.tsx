@@ -12,7 +12,6 @@ import {
 } from "framer-motion";
 import Container from "@/components/ui/Container";
 import SectionHeading from "@/components/ui/SectionHeading";
-import SectionSeam from "@/components/ui/SectionSeam";
 import StatNumber from "@/components/ui/StatNumber";
 import TradeArc, { type ArcPoint } from "@/components/ui/TradeArc";
 import { easeOut, fadeSoft, inView } from "@/lib/motion";
@@ -135,7 +134,6 @@ export default function GlobalPresence() {
       className="section-quiet zone-cool noise relative overflow-hidden"
     >
       {/* Trade Arc boundary — full-bleed, self-centers to max-w-container. */}
-      <SectionSeam number="06" />
 
       {/* The section's single static blur blob (never animated). */}
       <div

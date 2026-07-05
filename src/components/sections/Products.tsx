@@ -7,7 +7,6 @@ import Container from "@/components/ui/Container";
 import PinnedScene from "@/components/ui/PinnedScene";
 import RollButton from "@/components/ui/RollButton";
 import SectionHeading from "@/components/ui/SectionHeading";
-import SectionSeam from "@/components/ui/SectionSeam";
 import { cta, productListPdf, products, productsIntro } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
@@ -374,7 +373,6 @@ export default function Products() {
       className="section-peak zone-cool relative text-white noise"
     >
       {/* Trade Arc boundary — very top, full-bleed (self-centers). */}
-      <SectionSeam number={SECTION_NUMBER} />
 
       {/* Mobile <768px: no scatter, no pin — heading then a clean list. */}
       <div className="md:hidden">

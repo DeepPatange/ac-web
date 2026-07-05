@@ -16,7 +16,6 @@ import {
 import Container from "@/components/ui/Container";
 import PinnedScene from "@/components/ui/PinnedScene";
 import SectionHeading from "@/components/ui/SectionHeading";
-import SectionSeam from "@/components/ui/SectionSeam";
 import StatNumber from "@/components/ui/StatNumber";
 import { growth, growthCopy } from "@/lib/site";
 import { easeOut, fadeSoft, inView, stagger } from "@/lib/motion";
@@ -768,7 +767,6 @@ export default function Growth() {
       aria-label={`${growthCopy.eyebrow} — ${growthCopy.heading}`}
       className="section-peak zone-warm relative"
     >
-      <SectionSeam number="05" />
 
       <PinnedScene
         height="200vh"

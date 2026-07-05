@@ -19,7 +19,6 @@ import {
 import Container from "@/components/ui/Container";
 import PinnedScene from "@/components/ui/PinnedScene";
 import SectionHeading from "@/components/ui/SectionHeading";
-import SectionSeam from "@/components/ui/SectionSeam";
 import { nav, verticals, verticalsIntro } from "@/lib/site";
 import { easeOut } from "@/lib/motion";
 import { cn } from "@/lib/utils";
@@ -283,7 +282,6 @@ export default function Verticals() {
   return (
     <section id={SECTION_ID} className="section-peak zone-cool noise relative">
       {/* Trade Arc boundary — node lands at the section-number chip. */}
-      <SectionSeam number="02" />
 
       <PinnedScene height="280vh" reducedFallback={<ReducedVerticals />}>
         {(progress) => <Stage progress={progress} />}

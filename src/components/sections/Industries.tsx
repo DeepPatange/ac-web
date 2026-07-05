@@ -18,7 +18,6 @@ import {
 
 import Container from "@/components/ui/Container";
 import SectionHeading from "@/components/ui/SectionHeading";
-import SectionSeam from "@/components/ui/SectionSeam";
 import { fadeSoft, inView, stagger } from "@/lib/motion";
 import { industries, industriesDetail, industriesIntro, nav } from "@/lib/site";
 import { cn } from "@/lib/utils";
@@ -154,7 +153,6 @@ export default function Industries() {
   return (
     <section id="industries" className="section-quiet zone-cool noise overflow-hidden">
       {/* Trade Arc boundary — full-bleed, self-centers to max-w-container. */}
-      <SectionSeam number="04" />
 
       <Container className="relative">
         <SectionHeading number="04" title={sectionTitle} intro={industriesIntro} />

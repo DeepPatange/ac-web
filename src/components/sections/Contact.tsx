@@ -24,7 +24,6 @@ import {
 } from "lucide-react";
 import Container from "@/components/ui/Container";
 import SectionHeading from "@/components/ui/SectionHeading";
-import SectionSeam from "@/components/ui/SectionSeam";
 import { TextRoll } from "@/components/ui/RollButton";
 import { fadeSoft, inView, stagger } from "@/lib/motion";
 import { cn } from "@/lib/utils";
@@ -268,7 +267,6 @@ export default function Contact() {
       className="zone-warm noise relative overflow-hidden"
     >
       {/* Trade Arc boundary into the section */}
-      <SectionSeam number="08" />
 
       <Container className="relative pb-24 pt-6 sm:pb-28 sm:pt-8">
         <SectionHeading

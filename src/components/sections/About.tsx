@@ -10,7 +10,6 @@ import {
 import { Factory, TrendingUp, Workflow } from "lucide-react";
 import Container from "@/components/ui/Container";
 import SectionHeading from "@/components/ui/SectionHeading";
-import SectionSeam from "@/components/ui/SectionSeam";
 import StatNumber from "@/components/ui/StatNumber";
 import { FOUNDING_YEAR, aboutCopy, stats } from "@/lib/site";
 import { easeOut, fadeSoft, inView, stagger } from "@/lib/motion";
@@ -72,7 +71,6 @@ export default function About() {
       className="section-quiet zone-warm noise overflow-hidden"
     >
       {/* Trade Arc boundary into section 01 */}
-      <SectionSeam number="01" className="-mt-8 sm:-mt-10" />
 
       <Container className="relative">
         <div className="grid items-center gap-14 lg:grid-cols-2 lg:gap-20">
