@@ -1,20 +1,18 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
-import { AnimatePresence, motion } from "framer-motion";
-import { ChevronLeft, ChevronRight, X } from "lucide-react";
+import { motion } from "framer-motion";
 import Container from "@/components/ui/Container";
+import InteractiveBentoGallery from "@/components/ui/interactive-bento-gallery";
 import { fadeSoft, stagger } from "@/lib/motion";
 
 /* ============================================================================
    /gallery — the company's own photos (team, office, reception) from
-   accordchemicals.com/gallery, served locally from /public/gallery. Responsive
-   grid with a keyboard-navigable lightbox.
+   accordchemicals.com/gallery, served locally from /public/gallery, shown in
+   an interactive bento grid (drag to reorder, click for a lightbox + dock).
    ========================================================================== */
 
-const PHOTOS = [
+const NAMES = [
   "reception",
   "staff-06",
   "staff-08",
@@ -30,39 +28,46 @@ const PHOTOS = [
   "staff-18",
   "staff-19",
   "staff-20",
-].map((name, i) => ({
-  src: `/gallery/${name}.webp`,
-  alt: `Accord Chemical Corporation — office & team photo ${i + 1}`,
+];
+
+const CAPTIONS: { title: string; desc: string }[] = [
+  { title: "Reception", desc: "Where every consignment begins" },
+  { title: "The trading floor", desc: "Deals in motion" },
+  { title: "Sourcing desk", desc: "Producer-direct, every day" },
+  { title: "At the desk", desc: "Documentation & clearing" },
+  { title: "The team", desc: "One desk, end to end" },
+  { title: "In session", desc: "Working a consignment" },
+  { title: "Deal desk", desc: "Indent to delivery" },
+  { title: "Operations", desc: "Logistics in real time" },
+  { title: "The floor", desc: "Mumbai headquarters" },
+  { title: "Client calls", desc: "Quotes within a day" },
+  { title: "Focus", desc: "Precision at every step" },
+  { title: "Collaboration", desc: "Sales & sourcing together" },
+  { title: "The crew", desc: "People-centric by design" },
+  { title: "Morning huddle", desc: "Aligned on every lane" },
+  { title: "At work", desc: "Trust and transparency" },
+];
+
+/* Bento span pattern cycled across the photos for a varied grid. */
+const SPANS = [
+  "md:col-span-2 md:row-span-2 sm:col-span-2 sm:row-span-2",
+  "md:col-span-1 md:row-span-3 sm:col-span-1 sm:row-span-2",
+  "md:col-span-1 md:row-span-2 sm:col-span-1 sm:row-span-2",
+  "md:col-span-2 md:row-span-2 sm:col-span-2 sm:row-span-2",
+  "md:col-span-1 md:row-span-3 sm:col-span-1 sm:row-span-2",
+  "md:col-span-1 md:row-span-2 sm:col-span-1 sm:row-span-2",
+];
+
+const MEDIA = NAMES.map((name, i) => ({
+  id: i + 1,
+  type: "image",
+  title: CAPTIONS[i]?.title ?? "Accord",
+  desc: CAPTIONS[i]?.desc ?? "",
+  url: `/gallery/${name}.webp`,
+  span: SPANS[i % SPANS.length],
 }));
 
 export default function GalleryContent() {
-  const [open, setOpen] = useState<number | null>(null);
-
-  const close = useCallback(() => setOpen(null), []);
-  const prev = useCallback(
-    () => setOpen((v) => (v === null ? v : (v - 1 + PHOTOS.length) % PHOTOS.length)),
-    []
-  );
-  const next = useCallback(
-    () => setOpen((v) => (v === null ? v : (v + 1) % PHOTOS.length)),
-    []
-  );
-
-  useEffect(() => {
-    if (open === null) return;
-    document.body.style.overflow = "hidden";
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") close();
-      else if (e.key === "ArrowLeft") prev();
-      else if (e.key === "ArrowRight") next();
-    };
-    window.addEventListener("keydown", onKey);
-    return () => {
-      document.body.style.overflow = "";
-      window.removeEventListener("keydown", onKey);
-    };
-  }, [open, close, prev, next]);
-
   return (
     <>
       {/* Hero */}
@@ -103,112 +108,18 @@ export default function GalleryContent() {
               className="mt-6 max-w-xl text-base leading-relaxed text-steel-300 sm:text-lg"
             >
               A look inside Accord Chemical Corporation — our people, our desk and
-              our Mumbai headquarters.
+              our Mumbai headquarters. Drag the tiles to rearrange, or click any
+              photo to open it.
             </motion.p>
           </motion.div>
         </Container>
       </section>
 
-      {/* Grid */}
-      <section className="section-quiet">
-        <Container>
-          <motion.div
-            variants={stagger(0.05)}
-            initial="hidden"
-            whileInView="show"
-            viewport={{ once: true, amount: 0.05 }}
-            className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4"
-          >
-            {PHOTOS.map((photo, i) => (
-              <motion.button
-                key={photo.src}
-                variants={fadeSoft}
-                type="button"
-                onClick={() => setOpen(i)}
-                aria-label={`Open image ${i + 1}`}
-                className="group relative aspect-[3/2] overflow-hidden rounded-2xl ring-1 ring-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accord-red"
-              >
-                <Image
-                  src={photo.src}
-                  alt={photo.alt}
-                  fill
-                  sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                  className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-                />
-                <div
-                  aria-hidden
-                  className="absolute inset-0 bg-gradient-to-t from-ink/50 via-transparent to-transparent opacity-70 transition-opacity duration-500 group-hover:opacity-30"
-                />
-                <span
-                  aria-hidden
-                  className="absolute inset-x-0 top-0 h-px origin-left scale-x-0 bg-accord-red transition-transform duration-500 group-hover:scale-x-100"
-                />
-              </motion.button>
-            ))}
-          </motion.div>
-        </Container>
+      {/* Interactive bento gallery (header omitted — the page hero above serves
+          as the title). */}
+      <section className="section-quiet pt-4">
+        <InteractiveBentoGallery mediaItems={MEDIA} />
       </section>
-
-      {/* Lightbox */}
-      <AnimatePresence>
-        {open !== null && (
-          <motion.div
-            className="fixed inset-0 z-[60] flex items-center justify-center p-4 sm:p-8"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.25 }}
-          >
-            <div
-              className="absolute inset-0 bg-ink/92 backdrop-blur-sm"
-              onClick={close}
-              aria-hidden
-            />
-            <button
-              type="button"
-              onClick={close}
-              aria-label="Close"
-              className="absolute right-4 top-4 z-10 grid h-11 w-11 place-items-center rounded-full border border-white/15 bg-white/[0.06] text-white transition-colors hover:border-accord-red/60 hover:text-accord-red focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accord-red"
-            >
-              <X className="h-5 w-5" />
-            </button>
-            <button
-              type="button"
-              onClick={prev}
-              aria-label="Previous"
-              className="absolute left-3 z-10 grid h-11 w-11 place-items-center rounded-full border border-white/15 bg-white/[0.06] text-white transition-colors hover:border-accord-red/60 hover:text-accord-red focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accord-red sm:left-6"
-            >
-              <ChevronLeft className="h-6 w-6" />
-            </button>
-            <button
-              type="button"
-              onClick={next}
-              aria-label="Next"
-              className="absolute right-3 z-10 grid h-11 w-11 place-items-center rounded-full border border-white/15 bg-white/[0.06] text-white transition-colors hover:border-accord-red/60 hover:text-accord-red focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accord-red sm:right-6"
-            >
-              <ChevronRight className="h-6 w-6" />
-            </button>
-
-            <motion.div
-              key={open}
-              initial={{ opacity: 0, scale: 0.97 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.3, ease: "easeOut" }}
-              className="relative z-[1] max-h-full w-full max-w-5xl"
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={PHOTOS[open].src}
-                alt={PHOTOS[open].alt}
-                className="mx-auto max-h-[82vh] w-auto rounded-2xl object-contain ring-1 ring-white/10"
-              />
-              <p className="mt-3 text-center font-mono text-xs tracking-widest text-steel-400">
-                {String(open + 1).padStart(2, "0")} / {PHOTOS.length}
-              </p>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </>
   );
 }
