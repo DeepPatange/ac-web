@@ -70,6 +70,50 @@ export default function RootLayout({
       className={`${inter.variable} ${display.variable} ${mono.variable}`}
     >
       <body>
+        {/* Tritone filter for the Spline hero — maps the scene's tones onto a
+            strict three-colour ramp: shadows → near-black, mids → brand red,
+            highlights → white. No hue-rotate (that produced magenta), so the
+            scene reads ONLY white / red / black. Referenced from globals.css
+            via `.spline-tint canvas { filter: url(#accord-tritone) }`. */}
+        <svg
+          aria-hidden
+          focusable="false"
+          width="0"
+          height="0"
+          style={{ position: "absolute", width: 0, height: 0 }}
+        >
+          <filter id="accord-tritone" colorInterpolationFilters="sRGB">
+            {/* 1 — collapse to perceptual luminance (Rec.709) */}
+            <feColorMatrix
+              type="matrix"
+              values="0.2126 0.7152 0.0722 0 0
+                      0.2126 0.7152 0.0722 0 0
+                      0.2126 0.7152 0.0722 0 0
+                      0 0 0 1 0"
+            />
+            {/* 2 — punch contrast so tones commit to the ramp's ends */}
+            <feComponentTransfer>
+              <feFuncR type="gamma" amplitude="1" exponent="0.82" offset="0" />
+              <feFuncG type="gamma" amplitude="1" exponent="0.82" offset="0" />
+              <feFuncB type="gamma" amplitude="1" exponent="0.82" offset="0" />
+            </feComponentTransfer>
+            {/* 3 — map that ramp: black → red (held across the mids) → white */}
+            <feComponentTransfer>
+              <feFuncR
+                type="table"
+                tableValues="0.043 0.882 0.882 0.882 0.882 0.996 0.996 0.996"
+              />
+              <feFuncG
+                type="table"
+                tableValues="0.043 0.106 0.106 0.106 0.106 0.996 0.996 0.996"
+              />
+              <feFuncB
+                type="table"
+                tableValues="0.051 0.133 0.133 0.133 0.133 0.996 0.996 0.996"
+              />
+            </feComponentTransfer>
+          </filter>
+        </svg>
         <MotionConfig reducedMotion="user">
           <ScrollProgress />
           <SmoothScroll>{children}</SmoothScroll>

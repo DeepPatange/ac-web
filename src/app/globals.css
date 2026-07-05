@@ -172,13 +172,12 @@ footer[id] {
   scroll-margin-top: 5.5rem;
 }
 
-/* Recolor the Spline port scene from its native blue into the Accord red
-   palette while keeping it dark and clearly visible (no brightening — the
-   scene is meant to read as a moody, dark hero). This is the original
-   first blue→red tint. hue-rotate is GPU-cheap. */
+/* Recolor the Spline port scene into a strict white / red / black tritone.
+   The mapping lives in an SVG filter (#accord-tritone, defined in layout.tsx):
+   shadows → near-black, mids → brand red, highlights → white. No hue-rotate,
+   so there is NO magenta/pink — only the three brand colours. */
 .spline-tint canvas {
-  filter: grayscale(1) sepia(1) hue-rotate(-42deg) saturate(4) brightness(1.12)
-    contrast(1.02);
+  filter: url(#accord-tritone);
 }
 
 @layer utilities {
