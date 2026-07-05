@@ -172,12 +172,10 @@ footer[id] {
   scroll-margin-top: 5.5rem;
 }
 
-/* Recolor the Spline port scene into a strict white / red / black tritone.
-   The mapping lives in an SVG filter (#accord-tritone, defined in layout.tsx):
-   shadows → near-black, mids → brand red, highlights → white. No hue-rotate,
-   so there is NO magenta/pink — only the three brand colours. */
+/* The Spline port scene renders in its original (native) colours — no recolour
+   filter. Left as a hook in case a tint is reintroduced later. */
 .spline-tint canvas {
-  filter: url(#accord-tritone);
+  filter: none;
 }
 
 @layer utilities {
