@@ -76,11 +76,16 @@ export default function Hero() {
       ref={ref}
       className="relative flex min-h-[100svh] flex-col overflow-hidden bg-ink"
     >
-      {/* Exact Accord palette map for the Spline canvas (referenced by
+      {/* Accord theme palette map for the Spline canvas (referenced by
           `.spline-tint canvas { filter: url(#accord-tritone) }`). Maps scene
-          luminance onto shadows→red #F3122F, mids→grey #C5C5C4, highlights→
-          white #FEFEFE. Red is weighted across the darker half so it reads as
-          a red scene, not a grey one. */}
+          luminance across five stops so the scene reads LIGHT with red as an
+          accent — only the deepest shadows go brand-red #E11B22; everything
+          from low-mid up is steel-grey → white:
+            0.00 shadow      → accord-red   #E11B22
+            0.25 low-mid     → steel-400    #9CA3AF
+            0.50 mid (ground)→ steel-300    #C4C7CE
+            0.75 high        → steel-200    #E5E7EB
+            1.00 highlight   → cloud        #FBFBFD  */}
       <svg
         aria-hidden
         className="absolute h-0 w-0"
@@ -100,9 +105,9 @@ export default function Hero() {
               values="0.2126 0.7152 0.0722 0 0 0.2126 0.7152 0.0722 0 0 0.2126 0.7152 0.0722 0 0 0 0 0 1 0"
             />
             <feComponentTransfer>
-              <feFuncR type="table" tableValues="0.953 0.953 0.773 0.996" />
-              <feFuncG type="table" tableValues="0.071 0.071 0.773 0.996" />
-              <feFuncB type="table" tableValues="0.184 0.184 0.769 0.996" />
+              <feFuncR type="table" tableValues="0.882 0.612 0.769 0.898 0.984" />
+              <feFuncG type="table" tableValues="0.106 0.639 0.780 0.906 0.984" />
+              <feFuncB type="table" tableValues="0.133 0.686 0.808 0.922 0.992" />
             </feComponentTransfer>
           </filter>
         </defs>
@@ -145,7 +150,7 @@ export default function Hero() {
         className="pointer-events-none absolute inset-0 z-20 hidden sm:block"
         style={{
           background:
-            "radial-gradient(105% 88% at -10% -12%, rgba(11,11,13,0.94), rgba(11,11,13,0.5) 36%, transparent 56%), linear-gradient(to top, #0b0b0d, transparent 12%)",
+            "linear-gradient(to right, rgba(11,11,13,0.95) 0%, rgba(11,11,13,0.85) 24%, rgba(11,11,13,0.45) 42%, transparent 58%), linear-gradient(to top, #0b0b0d, transparent 14%)",
         }}
       />
       <div
@@ -153,7 +158,7 @@ export default function Hero() {
         className="pointer-events-none absolute inset-0 z-20 sm:hidden"
         style={{
           background:
-            "linear-gradient(to bottom, rgba(11,11,13,0.9), rgba(11,11,13,0.4) 44%, transparent 66%), linear-gradient(to top, #0b0b0d, transparent 10%)",
+            "linear-gradient(to bottom, rgba(11,11,13,0.94) 0%, rgba(11,11,13,0.86) 30%, rgba(11,11,13,0.5) 50%, transparent 74%), linear-gradient(to top, #0b0b0d, transparent 10%)",
         }}
       />
 
