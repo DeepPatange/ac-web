@@ -2,6 +2,7 @@
 
 import { ReactNode, useEffect } from "react";
 import Lenis from "lenis";
+import { lenisStore } from "@/lib/lenis-store";
 
 /**
  * Buttery momentum scrolling via Lenis. Wraps the whole app so every section's
@@ -20,6 +21,7 @@ export default function SmoothScroll({ children }: { children: ReactNode }) {
       smoothWheel: true,
       touchMultiplier: 1.6,
     });
+    lenisStore.current = lenis;
 
     let frame = 0;
     function raf(time: number) {
@@ -73,6 +75,7 @@ export default function SmoothScroll({ children }: { children: ReactNode }) {
       cancelAnimationFrame(frame);
       document.removeEventListener("click", onClick);
       lenis.destroy();
+      lenisStore.current = null;
     };
   }, []);
 

@@ -1,11 +1,12 @@
 "use client";
 
-import { ReactNode, useRef, useState } from "react";
+import { ReactNode, useEffect, useRef, useState } from "react";
 import {
   useMotionValueEvent,
   useReducedMotion,
   useScroll,
 } from "framer-motion";
+import { lenisStore } from "@/lib/lenis-store";
 import { cn } from "@/lib/utils";
 
 export interface ScrollPanel {
@@ -19,20 +20,27 @@ export interface ScrollPanel {
   body?: ReactNode;
 }
 
+/** One wheel notch / arrow press advances exactly one panel; this is the lock
+    window afterwards so a single flick can't skip several panels. */
+const STEP_COOLDOWN = 850;
+
 /**
  * Split-panel scroll sequence. Adapted from a wheel-hijacking "scroll adventure"
- * into a SCROLL-DRIVEN pinned section so it composes with the site's global
- * Lenis smooth scroll (it does NOT capture window wheel/keydown, which would
- * trap the user and fight Lenis). A tall wrapper pins a full-screen stage;
- * scroll progress selects the active panel, whose two halves converge — the
- * left slides up from below, the right slides down from above — while the
- * outgoing panel's halves split away. Transform-only (GPU) + a CSS transition.
+ * into a pinned section that composes with the app-wide Lenis smooth scroll.
+ *
+ * A tall wrapper pins a full-screen stage; scroll progress selects the active
+ * panel, whose two halves converge (left up from below, right down from above)
+ * while the outgoing panel's halves split away. To make the cadence consistent
+ * — ONE scroll gesture = ONE panel, regardless of Lenis momentum — a wheel /
+ * arrow-key handler snaps the scroll to the next panel's position and locks
+ * briefly. It only engages while the stage is pinned and there's a next panel
+ * to show; at either end it lets the page scroll on (never traps the user).
  * Reduced motion / no-JS renders `reducedFallback` instead.
  */
 export default function ScrollAdventure({
   panels,
   reducedFallback,
-  vhPerPanel = 80,
+  vhPerPanel = 100,
 }: {
   panels: ScrollPanel[];
   reducedFallback?: ReactNode;
@@ -45,14 +53,86 @@ export default function ScrollAdventure({
     offset: ["start start", "end end"],
   });
   const [active, setActive] = useState(0);
+  const activeRef = useRef(0);
+  const lockedRef = useRef(false);
+  const n = panels.length;
 
   useMotionValueEvent(scrollYProgress, "change", (p) => {
-    const idx = Math.min(
-      panels.length - 1,
-      Math.max(0, Math.floor(p * panels.length))
-    );
+    const idx = Math.min(n - 1, Math.max(0, Math.floor(p * n)));
+    activeRef.current = idx;
     setActive((cur) => (cur === idx ? cur : idx));
   });
+
+  // One-gesture-per-panel wheel / keyboard stepping.
+  useEffect(() => {
+    if (reduced) return;
+    const el = ref.current;
+    if (!el) return;
+
+    /** Absolute scroll-Y that lands the given panel index at its window centre. */
+    const scrollYForPanel = (idx: number) => {
+      const wrapTop = el.getBoundingClientRect().top + window.scrollY;
+      const range = el.offsetHeight - window.innerHeight;
+      return wrapTop + ((idx + 0.5) / n) * range;
+    };
+
+    const isPinned = () => {
+      const r = el.getBoundingClientRect();
+      return r.top <= 1 && r.bottom >= window.innerHeight - 1;
+    };
+
+    const step = (dir: 1 | -1) => {
+      const next = activeRef.current + dir;
+      if (next < 0 || next > n - 1) return false; // let the page scroll on
+      lockedRef.current = true;
+      window.setTimeout(() => (lockedRef.current = false), STEP_COOLDOWN);
+      const target = scrollYForPanel(next);
+      const lenis = lenisStore.current;
+      if (lenis) lenis.scrollTo(target, { duration: 0.85 });
+      else window.scrollTo({ top: target, behavior: "smooth" });
+      return true;
+    };
+
+    const onWheel = (e: WheelEvent) => {
+      if (!isPinned() || Math.abs(e.deltaY) < 2) return;
+      const dir: 1 | -1 = e.deltaY > 0 ? 1 : -1;
+      // Boundary: nothing to step to → don't capture, let the page continue.
+      if ((dir === 1 && activeRef.current >= n - 1) ||
+          (dir === -1 && activeRef.current <= 0)) {
+        return;
+      }
+      e.preventDefault();
+      e.stopPropagation();
+      if (lockedRef.current) return;
+      step(dir);
+    };
+
+    const onKey = (e: KeyboardEvent) => {
+      if (!isPinned()) return;
+      const dir: 1 | -1 | 0 =
+        e.key === "ArrowDown" || e.key === "PageDown"
+          ? 1
+          : e.key === "ArrowUp" || e.key === "PageUp"
+            ? -1
+            : 0;
+      if (!dir) return;
+      if ((dir === 1 && activeRef.current >= n - 1) ||
+          (dir === -1 && activeRef.current <= 0)) {
+        return;
+      }
+      e.preventDefault();
+      if (lockedRef.current) return;
+      step(dir);
+    };
+
+    // capture-phase + non-passive so we run before Lenis and can preventDefault.
+    window.addEventListener("wheel", onWheel, { passive: false, capture: true });
+    window.addEventListener("keydown", onKey, { capture: true });
+    return () => {
+      window.removeEventListener("wheel", onWheel, { capture: true } as EventListenerOptions);
+      window.removeEventListener("keydown", onKey, { capture: true } as EventListenerOptions);
+    };
+  }, [reduced, n]);
 
   if (reduced) return <>{reducedFallback}</>;
 
