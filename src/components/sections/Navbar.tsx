@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { motion, useScroll, useMotionValueEvent } from "framer-motion";
 import { ArrowRight, Menu, X } from "lucide-react";
@@ -95,10 +96,15 @@ export default function Navbar() {
             focusRing
           )}
         >
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-accord-red shadow-[0_6px_18px_-6px_rgba(225,27,34,0.9)] ring-1 ring-white/20 transition-transform duration-500 group-hover/logo:scale-105">
-            <span className="text-[12px] font-bold tracking-tight text-white">
-              AC
-            </span>
+          <span className="relative flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl bg-white shadow-[0_6px_18px_-6px_rgba(0,0,0,0.55)] ring-1 ring-white/20 transition-transform duration-500 group-hover/logo:scale-105">
+            <Image
+              src="/logo.png"
+              alt={siteConfig.name}
+              fill
+              sizes="40px"
+              priority
+              className="object-contain p-1"
+            />
           </span>
           <span className="hidden text-[15px] font-semibold leading-none tracking-tight text-white sm:inline">
             {brandLead}{" "}

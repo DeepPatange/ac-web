@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useRef } from "react";
 import {
   motion,
@@ -199,11 +200,22 @@ export default function Footer() {
           {/* Brand + one-liner */}
           <motion.div variants={fadeSoft} className="sm:col-span-2 lg:col-span-5 lg:pr-10">
             <Link
-              href="#home"
-              className="inline-flex items-baseline font-display text-2xl font-semibold tracking-tight focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accord-red rounded-sm"
+              href="/"
+              className="inline-flex items-center gap-3 font-display text-2xl font-semibold tracking-tight focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accord-red rounded-sm"
             >
-              <span className="text-white">Accord</span>
-              <span className="text-accord-red">Chemicals</span>
+              <span className="relative flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white ring-1 ring-white/15">
+                <Image
+                  src="/logo.png"
+                  alt={siteConfig.name}
+                  fill
+                  sizes="44px"
+                  className="object-contain p-1"
+                />
+              </span>
+              <span>
+                <span className="text-white">Accord</span>
+                <span className="text-accord-red">Chemicals</span>
+              </span>
             </Link>
             <p className="mt-2 font-mono text-[11px] uppercase tracking-widest text-steel-400">
               {siteConfig.legalName}
