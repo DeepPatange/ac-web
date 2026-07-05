@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { motion, useScroll, useMotionValueEvent } from "framer-motion";
 import { ArrowRight, Menu, X } from "lucide-react";
 import { nav, cta, hero, siteConfig } from "@/lib/site";
@@ -23,6 +24,14 @@ export default function Navbar() {
   const [mounted, setMounted] = useState(false);
   const { scrollY } = useScroll();
   const lastY = useRef(0);
+  const pathname = usePathname();
+
+  /* In-page section links are "#id" anchors. On any page other than home,
+     rewrite them to "/#id" so they route home and then scroll — otherwise the
+     anchor points at a section that doesn't exist on this route. Real routes
+     (e.g. "/about-us") pass through unchanged. */
+  const resolve = (href: string) =>
+    href.startsWith("#") && pathname !== "/" ? `/${href}` : href;
 
   useEffect(() => setMounted(true), []);
 
@@ -79,7 +88,7 @@ export default function Navbar() {
 
         {/* LEFT — logo mark + wordmark */}
         <Link
-          href="#home"
+          href={resolve("#home")}
           aria-label={`${siteConfig.name} — home`}
           className={cn(
             "group/logo relative flex items-center gap-2.5 rounded-xl",
@@ -102,7 +111,7 @@ export default function Navbar() {
           {nav.map((item) => (
             <li key={item.href}>
               <Link
-                href={item.href}
+                href={resolve(item.href)}
                 className={cn(
                   "relative whitespace-nowrap rounded-full px-3 py-2 text-[13px] font-medium text-steel-300 transition-colors duration-300 hover:bg-white/[0.07] hover:text-white",
                   focusRing
@@ -116,7 +125,7 @@ export default function Navbar() {
 
         {/* RIGHT — primary CTA (desktop) */}
         <Link
-          href={cta.primary.href}
+          href={resolve(cta.primary.href)}
           className={cn(
             "group hidden items-center gap-2.5 rounded-xl bg-accord-red py-2 pl-5 pr-2 text-[13px] font-medium text-white transition-colors duration-300 hover:bg-accord-redDark xl:flex",
             focusRing
@@ -182,7 +191,7 @@ export default function Navbar() {
                 {nav.map((item) => (
                   <li key={item.href}>
                     <Link
-                      href={item.href}
+                      href={resolve(item.href)}
                       onClick={close}
                       tabIndex={open ? 0 : -1}
                       className={cn(
@@ -197,7 +206,7 @@ export default function Navbar() {
               </ul>
 
               <Link
-                href={cta.primary.href}
+                href={resolve(cta.primary.href)}
                 onClick={close}
                 tabIndex={open ? 0 : -1}
                 className={cn(
