@@ -95,22 +95,23 @@ export default function RootLayout({
                       0.72 0.78 -0.55 0 0.16
                       0 0 0 1 0"
             />
-            {/* 2 — map that signal onto the reference palette: black-dominant
-                (sea + dock + shadows), a RED band through the mids (containers,
-                structures), WHITE for the brightest surfaces (ships, cranes).
-                Ramp knees ≈ 0.50 (black→red) and ≈ 0.62 (red→white). */}
+            {/* 2 — map that signal onto the reference palette. Low knees so the
+                scene stays VISIBLE and white-forward: only the darkest sea +
+                shadows stay black, a RED band carries the dock/containers, and
+                everything brighter (ships, cranes, container tops) turns WHITE.
+                Ramp knees ≈ 0.22 (black→red) and ≈ 0.38 (red→white). */}
             <feComponentTransfer>
               <feFuncR
                 type="table"
-                tableValues="0.043 0.043 0.043 0.043 0.043 0.043 0.886 0.886 0.99 0.99 0.99 0.99 0.99"
+                tableValues="0.05 0.05 0.05 0.886 0.886 0.995 0.995 0.995 0.995 0.995 0.995 0.995 0.995"
               />
               <feFuncG
                 type="table"
-                tableValues="0.043 0.043 0.043 0.043 0.043 0.043 0.106 0.106 0.99 0.99 0.99 0.99 0.99"
+                tableValues="0.05 0.05 0.05 0.106 0.106 0.995 0.995 0.995 0.995 0.995 0.995 0.995 0.995"
               />
               <feFuncB
                 type="table"
-                tableValues="0.051 0.051 0.051 0.051 0.051 0.051 0.133 0.133 0.99 0.99 0.99 0.99 0.99"
+                tableValues="0.06 0.06 0.06 0.133 0.133 0.995 0.995 0.995 0.995 0.995 0.995 0.995 0.995"
               />
             </feComponentTransfer>
           </filter>
