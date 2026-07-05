@@ -69,12 +69,13 @@ export const siteConfig = {
 /** Nav — labels and order mirror the page's section order EXACTLY. */
 export const nav = [
   { label: "Home", href: "#home" },
-  { label: "About", href: "#about" },
-  { label: "What we do", href: "#what-we-do" },
+  { label: "About Us", href: "#about" },
   { label: "Products", href: "#products" },
-  { label: "Industries", href: "#industries" },
-  { label: "Track record", href: "#growth" },
-  { label: "Contact", href: "#contact" },
+  { label: "Services", href: "#what-we-do" },
+  { label: "Industries Served", href: "#industries" },
+  { label: "Career", href: "#career" },
+  { label: "Gallery", href: "#gallery" },
+  { label: "Contact Us", href: "#contact" },
 ] as const;
 
 /**

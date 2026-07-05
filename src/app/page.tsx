@@ -9,6 +9,8 @@ import Industries from "@/components/sections/Industries";
 import Growth from "@/components/sections/Growth";
 import GlobalPresence from "@/components/sections/GlobalPresence";
 import Process from "@/components/sections/Process";
+import Career from "@/components/sections/Career";
+import Gallery from "@/components/sections/Gallery";
 import Contact from "@/components/sections/Contact";
 import Footer from "@/components/sections/Footer";
 
@@ -27,6 +29,8 @@ export default function Home() {
         <Growth />
         <GlobalPresence />
         <Process />
+        <Career />
+        <Gallery />
         <Contact />
       </main>
       <Footer />

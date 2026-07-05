@@ -98,13 +98,13 @@ export default function Navbar() {
         </Link>
 
         {/* CENTER — nav links with a soft hover pill */}
-        <ul className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-0.5 lg:flex">
+        <ul className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-0.5 xl:flex">
           {nav.map((item) => (
             <li key={item.href}>
               <Link
                 href={item.href}
                 className={cn(
-                  "relative rounded-full px-3.5 py-2 text-[13.5px] font-medium text-steel-300 transition-colors duration-300 hover:bg-white/[0.07] hover:text-white",
+                  "relative whitespace-nowrap rounded-full px-3 py-2 text-[13px] font-medium text-steel-300 transition-colors duration-300 hover:bg-white/[0.07] hover:text-white",
                   focusRing
                 )}
               >
@@ -118,7 +118,7 @@ export default function Navbar() {
         <Link
           href={cta.primary.href}
           className={cn(
-            "group hidden items-center gap-2.5 rounded-xl bg-accord-red py-2 pl-5 pr-2 text-[13px] font-medium text-white transition-colors duration-300 hover:bg-accord-redDark lg:flex",
+            "group hidden items-center gap-2.5 rounded-xl bg-accord-red py-2 pl-5 pr-2 text-[13px] font-medium text-white transition-colors duration-300 hover:bg-accord-redDark xl:flex",
             focusRing
           )}
         >
@@ -138,7 +138,7 @@ export default function Navbar() {
           aria-label={open ? "Close menu" : "Open menu"}
           aria-expanded={open}
           className={cn(
-            "flex items-center gap-2 rounded-xl bg-accord-red px-4 py-2 text-[13px] font-medium text-white lg:hidden",
+            "flex items-center gap-2 rounded-xl bg-accord-red px-4 py-2 text-[13px] font-medium text-white xl:hidden",
             focusRing
           )}
         >
@@ -152,7 +152,7 @@ export default function Navbar() {
         createPortal(
           <div
             className={cn(
-              "fixed inset-0 z-50 lg:hidden",
+              "fixed inset-0 z-50 xl:hidden",
               open ? "pointer-events-auto" : "pointer-events-none"
             )}
             aria-hidden={!open}
