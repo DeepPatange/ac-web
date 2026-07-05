@@ -83,33 +83,34 @@ export default function RootLayout({
           style={{ position: "absolute", width: 0, height: 0 }}
         >
           <filter id="accord-tritone" colorInterpolationFilters="sRGB">
-            {/* 1 — collapse to perceptual luminance (Rec.709) */}
+            {/* 1 — ANTI-BLUE grayscale. Plain luminance can't tell the scene's
+                bright BLUE sea from the bright WHITE ships. Weighting the blue
+                channel negative sinks the saturated-blue water + sky to black
+                (the reference's dark negative space) while neutral whites — the
+                ships, cranes, light containers — stay bright. */}
             <feColorMatrix
               type="matrix"
-              values="0.2126 0.7152 0.0722 0 0
-                      0.2126 0.7152 0.0722 0 0
-                      0.2126 0.7152 0.0722 0 0
+              values="0.72 0.78 -0.55 0 0.16
+                      0.72 0.78 -0.55 0 0.16
+                      0.72 0.78 -0.55 0 0.16
                       0 0 0 1 0"
             />
-            {/* 2 — punch contrast so tones commit to the ramp's ends */}
-            <feComponentTransfer>
-              <feFuncR type="gamma" amplitude="1" exponent="0.82" offset="0" />
-              <feFuncG type="gamma" amplitude="1" exponent="0.82" offset="0" />
-              <feFuncB type="gamma" amplitude="1" exponent="0.82" offset="0" />
-            </feComponentTransfer>
-            {/* 3 — map that ramp: black → red (held across the mids) → white */}
+            {/* 2 — map that signal onto the reference palette: black-dominant
+                (sea + dock + shadows), a RED band through the mids (containers,
+                structures), WHITE for the brightest surfaces (ships, cranes).
+                Ramp knees ≈ 0.50 (black→red) and ≈ 0.62 (red→white). */}
             <feComponentTransfer>
               <feFuncR
                 type="table"
-                tableValues="0.043 0.882 0.882 0.882 0.882 0.996 0.996 0.996"
+                tableValues="0.043 0.043 0.043 0.043 0.043 0.043 0.886 0.886 0.99 0.99 0.99 0.99 0.99"
               />
               <feFuncG
                 type="table"
-                tableValues="0.043 0.106 0.106 0.106 0.106 0.996 0.996 0.996"
+                tableValues="0.043 0.043 0.043 0.043 0.043 0.043 0.106 0.106 0.99 0.99 0.99 0.99 0.99"
               />
               <feFuncB
                 type="table"
-                tableValues="0.051 0.133 0.133 0.133 0.133 0.996 0.996 0.996"
+                tableValues="0.051 0.051 0.051 0.051 0.051 0.051 0.133 0.133 0.99 0.99 0.99 0.99 0.99"
               />
             </feComponentTransfer>
           </filter>
