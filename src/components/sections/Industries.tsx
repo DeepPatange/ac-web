@@ -22,7 +22,7 @@ import ScrollAdventure, {
   type ScrollPanel,
 } from "@/components/ui/animated-scroll";
 import { fadeSoft, stagger } from "@/lib/motion";
-import { industriesDetail, industriesIntro, nav } from "@/lib/site";
+import { industriesDetail, industriesIntro } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
 /* ----------------------------------------------------------------------------
@@ -73,9 +73,9 @@ function iconFor(name: string): LucideIcon {
   return iconMap[name] ?? Factory;
 }
 
-/** Section title sourced from nav (single source of truth — no inline copy). */
-const sectionTitle =
-  nav.find((item) => item.href === "#industries")?.label ?? "Industries";
+/** Section title. (Nav "Industries Served" now routes to the dedicated
+    /industries-served page, so this on-home section keeps its own title.) */
+const sectionTitle = "Industries Served";
 
 /* -------------------------------------------------------------------------- */
 /*  Desktop split-panel sequence                                              */
