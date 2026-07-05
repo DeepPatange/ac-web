@@ -1,5 +1,6 @@
 import Navbar from "@/components/sections/Navbar";
 import Hero from "@/components/sections/Hero";
+import NetworkShowcase from "@/components/sections/NetworkShowcase";
 import About from "@/components/sections/About";
 import Verticals from "@/components/sections/Verticals";
 import CredibilityStrip from "@/components/sections/CredibilityStrip";
@@ -17,6 +18,7 @@ export default function Home() {
       <Navbar />
       <main>
         <Hero />
+        <NetworkShowcase />
         <About />
         <Verticals />
         <CredibilityStrip />

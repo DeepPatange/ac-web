@@ -97,11 +97,11 @@ export const cta = {
 /** Hero overlay copy — Spline scene + text overlay ONLY. */
 export const hero = {
   eyebrow: "Mumbai · Est. 2009 · 58+ countries",
-  headline: "Petrochemical trade, moved with precision.",
-  /** The word rendered in accord-red within the headline. */
-  headlineAccent: "precision",
+  headline: "Pioneering Petrochemical Excellence Since 2009",
+  /** The words rendered in accord-red within the headline (accent → end). */
+  headlineAccent: "Since 2009",
   subtext:
-    "Imports, exports and indenting of commodity and specialty petrochemicals — 110,000+ metric tons a year between 58 countries and India.",
+    "Accord Chemical Corporation, established in 2009, is a company actively engaged in Trading, Indenting, Distribution, Imports & Exports of various petrochemicals.",
   trustChip: "Trusted since 2009 · 186+ clients",
 } as const;
 
