@@ -7,7 +7,7 @@ import {
   useScroll,
   useTransform,
 } from "framer-motion";
-import { Factory, TrendingUp, Workflow } from "lucide-react";
+import { Factory, Target, Telescope, TrendingUp, Workflow } from "lucide-react";
 import Container from "@/components/ui/Container";
 import SectionHeading from "@/components/ui/SectionHeading";
 import StatNumber from "@/components/ui/StatNumber";
@@ -259,6 +259,42 @@ export default function About() {
             </motion.div>
           </motion.div>
         </div>
+
+        {/* VISION & MISSION — verbatim from accordchemicals.com */}
+        <motion.div
+          variants={stagger(0.1)}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, amount: 0.2 }}
+          className="mt-16 grid gap-4 sm:grid-cols-2 lg:mt-20"
+        >
+          {[
+            { label: "Vision", text: aboutCopy.vision, Icon: Telescope },
+            { label: "Mission", text: aboutCopy.mission, Icon: Target },
+          ].map(({ label, text, Icon }) => (
+            <motion.div
+              key={label}
+              variants={fadeSoft}
+              className="glass-card relative overflow-hidden p-6 sm:p-8"
+            >
+              <span
+                aria-hidden
+                className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-radial-fade opacity-50"
+              />
+              <div className="relative flex items-center gap-3">
+                <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-accord-red/25 bg-accord-red/[0.14] text-accord-red">
+                  <Icon className="h-5 w-5" strokeWidth={2} aria-hidden />
+                </span>
+                <span className="text-xs font-semibold uppercase tracking-[0.22em] text-accord-red">
+                  {label}
+                </span>
+              </div>
+              <p className="relative mt-4 text-lg leading-relaxed text-steel-200">
+                {text}
+              </p>
+            </motion.div>
+          ))}
+        </motion.div>
 
         {/* STATS PROOF BAND — glass strip, the site's ONLY count-ups.
             Suffix pops cascade left→right (§4.4). */}

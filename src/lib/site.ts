@@ -108,11 +108,11 @@ export const hero = {
 
 /** 01 — About: "One desk from indent to delivery." */
 export const aboutCopy = {
-  eyebrow: "About",
+  eyebrow: "About Us",
   heading: "One desk from indent to delivery.",
   body: [
-    "Accord Chemical Corporation started trading petrochemicals from Mumbai in 2009, moving 4,500 metric tons in its first year. Today the desk moves 110,000+ metric tons annually, sourcing and selling across 58+ countries — every year of that arc audited and on the record.",
-    "What 186+ active clients actually buy is certainty: producer-direct relationships, transparent indent pricing, and in-house clearing, storage, insurance and logistics. One call covers the consignment.",
+    "Accord Chemical Corporation is among the top petrochemical distribution companies in India — engaged in the import, export and indenting of various petrochemicals. Headquartered in Mumbai with branch offices in Ahmedabad and Gandhidham, Gujarat, it has, since 2009, built a colossal distribution network across India and international markets, led by an ardent team of qualified professionals on a foundation of trust and transparency.",
+    "From 4,500 metric tons in its first year, the desk now moves 110,000+ metric tons a year across 58+ countries. What clients buy is certainty — consistent quality, cost-effectiveness, velocity and competence: producer-direct relationships, transparent indent pricing, and in-house clearing, storage, insurance and logistics, so one call covers the consignment. In 2014, the group established Accord Chemcorp Pvt. Ltd., broadening its sourcing and product portfolio to serve industrial applications more comprehensively.",
   ],
   pillars: [
     {
@@ -128,6 +128,11 @@ export const aboutCopy = {
       desc: "Clearing, storage, survey, insurance and inland logistics handled in-house — one desk accountable to your gate.",
     },
   ],
+  /** Verbatim from accordchemicals.com. */
+  vision:
+    "To evolve into a top-notch, globally recognised petrochemical trading company, with insistent growth and outstanding performance.",
+  mission:
+    "To consistently deliver customer delight, elite-quality products and innovative services — committed to employee well-being, safety, and the growth of every stakeholder, alongside our socio-economic responsibility.",
 } as const;
 
 /**
