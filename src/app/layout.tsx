@@ -70,6 +70,42 @@ export default function RootLayout({
       className={`${inter.variable} ${display.variable} ${mono.variable}`}
     >
       <body>
+        {/* Tritone that recolours the Spline hero into the site theme. Referenced
+            from globals.css via `.spline-tint canvas { filter: url(#accord-tritone) }`.
+            Anti-blue grayscale (sinks the blue sea to black, keeps neutral whites
+            bright) → a black → red → white ramp with low knees so ships/cranes
+            read WHITE, dock/containers RED, sea BLACK. */}
+        <svg
+          aria-hidden
+          focusable="false"
+          width="0"
+          height="0"
+          style={{ position: "absolute", width: 0, height: 0 }}
+        >
+          <filter id="accord-tritone" colorInterpolationFilters="sRGB">
+            <feColorMatrix
+              type="matrix"
+              values="0.72 0.78 -0.55 0 0.16
+                      0.72 0.78 -0.55 0 0.16
+                      0.72 0.78 -0.55 0 0.16
+                      0 0 0 1 0"
+            />
+            <feComponentTransfer>
+              <feFuncR
+                type="table"
+                tableValues="0.05 0.05 0.05 0.886 0.886 0.995 0.995 0.995 0.995 0.995 0.995 0.995 0.995"
+              />
+              <feFuncG
+                type="table"
+                tableValues="0.05 0.05 0.05 0.106 0.106 0.995 0.995 0.995 0.995 0.995 0.995 0.995 0.995"
+              />
+              <feFuncB
+                type="table"
+                tableValues="0.06 0.06 0.06 0.133 0.133 0.995 0.995 0.995 0.995 0.995 0.995 0.995 0.995"
+              />
+            </feComponentTransfer>
+          </filter>
+        </svg>
         <MotionConfig reducedMotion="user">
           <ScrollProgress />
           <SmoothScroll>{children}</SmoothScroll>

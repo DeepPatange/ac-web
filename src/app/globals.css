@@ -172,10 +172,11 @@ footer[id] {
   scroll-margin-top: 5.5rem;
 }
 
-/* The Spline port scene renders in its original (native) colours — no recolour
-   filter. Left as a hook in case a tint is reintroduced later. */
+/* Recolour the Spline port scene into the site's white / red / black theme via
+   an SVG tritone (#accord-tritone, defined in layout.tsx): sea + shadows → black,
+   dock + containers → brand red, ships + cranes + highlights → white. */
 .spline-tint canvas {
-  filter: none;
+  filter: url(#accord-tritone);
 }
 
 @layer utilities {
