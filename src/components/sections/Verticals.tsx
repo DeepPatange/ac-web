@@ -124,7 +124,7 @@ function PillarRow({
         aria-hidden
         index={index}
         text={slide.title}
-        className="type-card cursor-pointer whitespace-nowrap text-white"
+        className="cursor-pointer whitespace-nowrap font-display text-[1.6rem] font-semibold leading-[1.05] tracking-[-0.01em] text-white sm:text-[2rem] lg:text-[2.4rem]"
       />
     </li>
   );
@@ -149,8 +149,8 @@ function CaptionBody({ compact = false }: { compact?: boolean }) {
           className={cn(
             "mt-3 font-medium leading-snug text-steel-100",
             compact
-              ? "text-[15px] sm:text-base"
-              : "text-lg sm:text-xl lg:text-[1.375rem]"
+              ? "text-base sm:text-lg"
+              : "text-xl sm:text-2xl lg:text-[1.6rem]"
           )}
         >
           {active.blurb}
