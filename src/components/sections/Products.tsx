@@ -8,7 +8,27 @@ import PinnedScene from "@/components/ui/PinnedScene";
 import RollButton from "@/components/ui/RollButton";
 import SectionHeading from "@/components/ui/SectionHeading";
 import { cta, productListPdf, products, productsIntro } from "@/lib/site";
+import { fadeSoft, inView, stagger } from "@/lib/motion";
 import { cn } from "@/lib/utils";
+
+/** Larger, bolder section intro (bigger than the shared SectionHeading intro). */
+function ProductsIntro({ align = "left" }: { align?: "left" | "center" }) {
+  return (
+    <motion.p
+      variants={fadeSoft}
+      initial="hidden"
+      whileInView="show"
+      viewport={inView}
+      transition={{ delay: 0.12 }}
+      className={cn(
+        "mt-6 max-w-3xl text-lg font-medium leading-snug text-steel-100 sm:text-xl lg:text-[1.6rem]",
+        align === "center" && "mx-auto text-center"
+      )}
+    >
+      {productsIntro}
+    </motion.p>
+  );
+}
 
 /* ============================================================================
    PEAK 2 — Products (brief §4.2 / §5).
@@ -208,60 +228,130 @@ function LedgerFooter({ dense = false }: { dense?: boolean }) {
   );
 }
 
+/** The inner grid for one ledger row — shared by the static + scroll variants. */
+function RowBody({
+  product,
+  i,
+  dense,
+}: {
+  product: (typeof products)[number];
+  i: number;
+  dense: boolean;
+}) {
+  const number = (
+    <span className="font-mono text-[11px] tracking-widest text-accord-red">
+      {String(i + 1).padStart(2, "0")}
+    </span>
+  );
+  const name = (extra?: string) => (
+    <h3
+      className={cn(
+        "type-card text-white transition-transform duration-300 ease-out group-hover:translate-x-1.5",
+        extra
+      )}
+    >
+      {product.name}
+    </h3>
+  );
+
+  return dense ? (
+    <div className="grid grid-cols-[2.75rem_minmax(15rem,21rem)_1fr_auto] items-baseline gap-x-6 py-2.5 lg:py-3.5">
+      {number}
+      {name("whitespace-nowrap")}
+      <p className="min-w-0 truncate text-sm leading-relaxed text-steel-400">
+        {product.desc}
+      </p>
+      <EnquireLink
+        slug={product.slug}
+        name={product.name}
+        className="justify-self-end"
+      />
+    </div>
+  ) : (
+    <div className="grid grid-cols-[auto_1fr_auto] items-baseline gap-x-3 py-4 sm:gap-x-4">
+      {number}
+      {name()}
+      <EnquireLink slug={product.slug} name={product.name} className="py-1" />
+      <p className="col-start-2 mt-1.5 text-sm leading-relaxed text-steel-400">
+        {product.desc}
+      </p>
+    </div>
+  );
+}
+
+/** Shared row chrome: hairline + the red top-rule that draws in on hover. */
+const ROW_CLASS =
+  "group relative border-t border-white/10 transition-colors duration-300 hover:bg-white/[0.02]";
+const rowRule = (
+  <span
+    aria-hidden
+    className="absolute -top-px left-0 h-px w-full origin-left scale-x-0 bg-accord-red transition-transform duration-500 ease-out group-hover:scale-x-100"
+  />
+);
+
+/** Pinned-stage row — scroll-driven staggered rise as Phase B arrives. */
+function ScrollRow({
+  product,
+  i,
+  progress,
+}: {
+  product: (typeof products)[number];
+  i: number;
+  progress: MotionValue<number>;
+}) {
+  const start = 0.63 + i * 0.02;
+  const opacity = useTransform(progress, [start, start + 0.09], [0, 1]);
+  const y = useTransform(progress, [start, start + 0.13], [26, 0]);
+  return (
+    <motion.li style={{ opacity, y }} className={ROW_CLASS}>
+      {rowRule}
+      <RowBody product={product} i={i} dense />
+    </motion.li>
+  );
+}
+
 /**
  * The 8-row product-family ledger. `dense` = single-line table rows for the
- * pinned stage (everything fits one viewport); default = stacked rows with
- * the full one-line desc for mobile / reduced motion.
+ * pinned stage; default = stacked rows for mobile / reduced motion. When
+ * `progress` is supplied the rows cascade in on scroll; otherwise they reveal
+ * with a whileInView stagger.
  */
-function ProductLedger({ dense = false }: { dense?: boolean }) {
+function ProductLedger({
+  dense = false,
+  progress,
+}: {
+  dense?: boolean;
+  progress?: MotionValue<number>;
+}) {
   return (
     <div>
-      <ul className="border-b border-white/10">
-        {products.map((product, i) => (
-          <li key={product.slug} className="group relative border-t border-white/10 transition-colors duration-300 hover:bg-white/[0.02]">
-            {/* Informational-tile hover (brief §4.4): 1px red rule draws along
-                the top edge; no translate. */}
-            <span
-              aria-hidden
-              className="absolute -top-px left-0 h-px w-full origin-left scale-x-0 bg-accord-red transition-transform duration-500 ease-out group-hover:scale-x-100"
+      {progress ? (
+        <ul className="border-b border-white/10">
+          {products.map((product, i) => (
+            <ScrollRow
+              key={product.slug}
+              product={product}
+              i={i}
+              progress={progress}
             />
-
-            {dense ? (
-              <div className="grid grid-cols-[2.75rem_minmax(15rem,21rem)_1fr_auto] items-baseline gap-x-6 py-2.5 lg:py-3.5">
-                <span className="font-mono text-[11px] tracking-widest text-accord-red">
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-                <h3 className="type-card whitespace-nowrap text-white">
-                  {product.name}
-                </h3>
-                <p className="min-w-0 truncate text-sm leading-relaxed text-steel-400">
-                  {product.desc}
-                </p>
-                <EnquireLink
-                  slug={product.slug}
-                  name={product.name}
-                  className="justify-self-end"
-                />
-              </div>
-            ) : (
-              <div className="grid grid-cols-[auto_1fr_auto] items-baseline gap-x-3 py-4 sm:gap-x-4">
-                <span className="font-mono text-[11px] tracking-widest text-accord-red">
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-                <h3 className="type-card text-white">{product.name}</h3>
-                <EnquireLink
-                  slug={product.slug}
-                  name={product.name}
-                  className="py-1"
-                />
-                <p className="col-start-2 mt-1.5 text-sm leading-relaxed text-steel-400">
-                  {product.desc}
-                </p>
-              </div>
-            )}
-          </li>
-        ))}
-      </ul>
+          ))}
+        </ul>
+      ) : (
+        <motion.ul
+          variants={stagger(0.06)}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, amount: 0.1 }}
+          className="border-b border-white/10"
+        >
+          {products.map((product, i) => (
+            <motion.li key={product.slug} variants={fadeSoft} className={ROW_CLASS}>
+              {rowRule}
+              <RowBody product={product} i={i} dense={dense} />
+            </motion.li>
+          ))}
+        </motion.ul>
+      )}
 
       <LedgerFooter dense={dense} />
     </div>
@@ -281,8 +371,8 @@ function StaticProducts() {
           number={SECTION_NUMBER}
           eyebrow={SECTION_EYEBROW}
           title={SECTION_TITLE}
-          intro={productsIntro}
         />
+        <ProductsIntro />
         <div className="mt-10">
           <ProductLedger />
         </div>
@@ -349,17 +439,18 @@ function MoleculeScene({ progress }: { progress: MotionValue<number> }) {
             number={SECTION_NUMBER}
             eyebrow={SECTION_EYEBROW}
             title={SECTION_TITLE}
-            intro={productsIntro}
             align="center"
           />
+          <ProductsIntro align="center" />
         </motion.div>
 
-        {/* Phase B payload — the static, scannable family ledger. */}
+        {/* Phase B payload — the static, scannable family ledger. Rows cascade
+            in on scroll; the block opacity/visibility gates tab order. */}
         <motion.div
           className="mt-8"
           style={{ opacity: gridOpacity, y: gridY, visibility: gridVisibility }}
         >
-          <ProductLedger dense />
+          <ProductLedger dense progress={progress} />
         </motion.div>
       </Container>
     </div>
