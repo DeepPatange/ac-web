@@ -1,311 +1,102 @@
 "use client";
 
-import { useRef } from "react";
-import {
-  motion,
-  useReducedMotion,
-  useScroll,
-  useTransform,
-} from "framer-motion";
-import { Factory, Target, Telescope, TrendingUp, Workflow } from "lucide-react";
+import Link from "next/link";
+import { motion } from "framer-motion";
+import { ArrowRight, Factory, TrendingUp, Workflow } from "lucide-react";
 import Container from "@/components/ui/Container";
 import SectionHeading from "@/components/ui/SectionHeading";
 import StatNumber from "@/components/ui/StatNumber";
-import { FOUNDING_YEAR, aboutCopy, stats } from "@/lib/site";
-import { easeOut, fadeSoft, inView, stagger } from "@/lib/motion";
+import { aboutCopy, stats } from "@/lib/site";
+import { fadeSoft, inView, stagger } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 
 /** Icons for the three pillars, in site.ts copy order. */
 const pillarIcons = [Factory, TrendingUp, Workflow] as const;
 
-/* ============================================================================
-   Orbit geometry — the simplified single-ring Trade Arc (brief §2.3).
-   One hairline ring, one red arc segment drawn ONCE on entry, one node that
-   lands where the draw completes. Then stillness.
-   ========================================================================== */
-const RING_R = 150; // ring radius in the 400×400 viewBox
-const ARC = 0.38; // fraction of the ring the red arc covers
-const DRAW_SECONDS = 1.5;
-const DRAW_DELAY = 0.2;
+/* Condensed home-page intro — the full narrative lives on /about-us. */
+const HOME_INTRO = [
+  "Among India's top petrochemical distribution houses — importing, exporting and indenting a diverse basket of petrochemicals since 2009. Headquartered in Mumbai, with branch offices in Ahmedabad and Gandhidham.",
+  "From 4,500 metric tons in year one to 110,000+ MT a year across 58+ countries — producer-direct pricing with in-house clearing, storage, insurance and logistics, so one call covers the consignment.",
+];
 
-// Node position: end of the arc. Circle paths start at 3 o'clock; the group
-// is rotated -90° so the draw starts at 12 o'clock and sweeps clockwise.
-const END_RAD = ((-90 + ARC * 360) * Math.PI) / 180;
-const NODE_X = ((200 + RING_R * Math.cos(END_RAD)) / 400) * 100; // % of box
-const NODE_Y = ((200 + RING_R * Math.sin(END_RAD)) / 400) * 100; // % of box
-
-/* Count-up cascade (brief §4.4) — suffix pops land left→right, everything
-   settles inside the 2s quiet-section stillness budget. */
+/* Count-up cascade (brief §4.4) — the site's ONLY count-ups. */
 const COUNT_DURATION = 1.4;
 const COUNT_STEP = 0.12;
 
 /**
- * 01 — About: "One desk from indent to delivery." The page's first quiet beat
- * (brief §4.1). WordReveal H2 via SectionHeading, fadeSoft body, three
- * informational pillar tiles, a simplified single-ring Trade Arc orbit with
- * ONE parallax layer — and the Stats proof band merged in as a glass strip:
- * the ONLY count-ups on the site.
+ * 01 — About: the home-page teaser. Asymmetric intro (heading + link | copy),
+ * the count-up stats proof band, and three capability pillars. No orbit ring —
+ * the full story, timeline and vision/mission live on /about-us.
  */
 export default function About() {
-  const sectionRef = useRef<HTMLElement>(null);
-  const reduced = useReducedMotion();
-
-  // The one parallax layer: the orbit panel drifts as the section scrolls
-  // through view. Scroll-linked transform only.
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ["start end", "end start"],
-  });
-  const orbitY = useTransform(scrollYProgress, [0, 1], [48, -48]);
-
-  // Arc draws once on entry; renders complete under reduced motion.
-  const drawInitial = reduced ? { pathLength: ARC } : { pathLength: 0 };
-  const drawTransition = reduced
-    ? { duration: 0 }
-    : { duration: DRAW_SECONDS, ease: easeOut, delay: DRAW_DELAY };
-
   return (
-    <section
-      ref={sectionRef}
-      id="about"
-      className="section-quiet zone-warm noise overflow-hidden"
-    >
-      {/* Trade Arc boundary into section 01 */}
-
+    <section id="about" className="section zone-warm noise overflow-hidden">
       <Container className="relative">
-        <div className="grid items-center gap-14 lg:grid-cols-2 lg:gap-20">
-          {/* LEFT — story + pillars */}
-          <div>
+        {/* Soft red glow behind the heading — gradient only, never animated. */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -left-[6%] -top-[8%] h-[26rem] w-[26rem] rounded-full bg-[radial-gradient(circle,rgba(225,27,34,0.12),transparent_62%)]"
+        />
+
+        {/* INTRO — heading + link on the left, condensed story on the right. */}
+        <div className="relative grid gap-10 lg:grid-cols-12 lg:items-end lg:gap-16">
+          <div className="lg:col-span-5">
             <SectionHeading
               number="01"
               eyebrow={aboutCopy.eyebrow}
               title={aboutCopy.heading}
               align="left"
             />
-
             <motion.div
-              variants={stagger(0.08)}
+              variants={fadeSoft}
               initial="hidden"
               whileInView="show"
               viewport={inView}
-              className="mt-6 flex flex-col gap-4"
             >
-              {aboutCopy.body.map((paragraph) => (
-                <motion.p
-                  key={paragraph}
-                  variants={fadeSoft}
-                  className="max-w-xl text-base leading-relaxed text-steel-300"
-                >
-                  {paragraph}
-                </motion.p>
-              ))}
-            </motion.div>
-
-            {/* Pillars — informational tiles (§4.4): border brightens + a 1px
-                red rule draws along the top edge. No lift, no color theatre. */}
-            <motion.div
-              variants={stagger(0.08)}
-              initial="hidden"
-              whileInView="show"
-              viewport={{ once: true, amount: 0.2 }}
-              className="mt-10 grid gap-4 sm:grid-cols-3"
-            >
-              {aboutCopy.pillars.map((pillar, i) => {
-                const Icon = pillarIcons[i] ?? Workflow;
-                return (
-                  <motion.div key={pillar.title} variants={fadeSoft}>
-                    <div className="group glass-card relative h-full overflow-hidden p-5 transition-colors duration-300 hover:border-white/25">
-                      <span
-                        aria-hidden
-                        className="absolute inset-x-0 top-0 h-px origin-left scale-x-0 bg-gradient-to-r from-accord-red to-accord-ember transition-transform duration-300 group-hover:scale-x-100"
-                      />
-                      <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-accord-red/25 bg-accord-red/[0.14] text-accord-red">
-                        <Icon className="h-5 w-5" strokeWidth={2} aria-hidden />
-                      </span>
-                      <h3 className="type-card mt-4 text-white">
-                        {pillar.title}
-                      </h3>
-                      <p className="mt-1.5 text-sm leading-relaxed text-steel-300">
-                        {pillar.desc}
-                      </p>
-                    </div>
-                  </motion.div>
-                );
-              })}
+              <Link
+                href="/about-us"
+                className="group mt-8 inline-flex items-center gap-3 rounded-full border border-white/15 bg-white/[0.03] py-2.5 pl-5 pr-2.5 text-sm font-medium text-white transition-colors duration-300 hover:border-accord-red/50 hover:bg-accord-red/[0.08] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accord-red focus-visible:ring-offset-2 focus-visible:ring-offset-ink"
+              >
+                About Accord Chemical
+                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-accord-red">
+                  <ArrowRight
+                    size={14}
+                    className="text-white transition-transform duration-500 group-hover:-rotate-45"
+                    aria-hidden
+                  />
+                </span>
+              </Link>
             </motion.div>
           </div>
 
-          {/* RIGHT — simplified single-ring Trade Arc orbit (one parallax layer) */}
           <motion.div
-            variants={fadeSoft}
+            variants={stagger(0.09)}
             initial="hidden"
             whileInView="show"
             viewport={inView}
-            className="relative"
+            className="flex flex-col gap-5 lg:col-span-7"
           >
-            <motion.div
-              style={reduced ? undefined : { y: orbitY }}
-              className="relative mx-auto aspect-square w-full max-w-[30rem]"
-            >
-              <div className="glass-card relative h-full w-full overflow-hidden rounded-4xl">
-                {/* Faint grid — allowed only in About + Products (brief §2) */}
-                <div
-                  aria-hidden
-                  className="absolute inset-0 bg-grid-faint opacity-60"
-                  style={{
-                    backgroundSize: "40px 40px",
-                    maskImage:
-                      "radial-gradient(ellipse at 50% 50%, black 30%, transparent 78%)",
-                    WebkitMaskImage:
-                      "radial-gradient(ellipse at 50% 50%, black 30%, transparent 78%)",
-                  }}
-                />
-
-                {/* Static red core glow — gradient only, never animated */}
-                <div
-                  aria-hidden
-                  className="absolute left-1/2 top-1/2 h-[130%] w-[130%] -translate-x-1/2 -translate-y-1/2 bg-radial-fade"
-                />
-
-                <svg
-                  aria-hidden
-                  viewBox="0 0 400 400"
-                  className="absolute inset-0 h-full w-full"
-                  fill="none"
-                >
-                  {/* The single ring */}
-                  <circle
-                    cx="200"
-                    cy="200"
-                    r={RING_R}
-                    stroke="rgba(255,255,255,0.10)"
-                    strokeWidth="1"
-                    vectorEffect="non-scaling-stroke"
-                  />
-
-                  {/* Red arc segment — drawn once on entry, then still.
-                      Glow is a wider low-opacity twin stroke (no SVG filters). */}
-                  <g transform="rotate(-90 200 200)">
-                    <motion.circle
-                      cx="200"
-                      cy="200"
-                      r={RING_R}
-                      stroke="#E11B22"
-                      strokeOpacity="0.22"
-                      strokeWidth="5"
-                      strokeLinecap="round"
-                      vectorEffect="non-scaling-stroke"
-                      initial={drawInitial}
-                      whileInView={{ pathLength: ARC }}
-                      viewport={{ once: true, amount: 0.4 }}
-                      transition={drawTransition}
-                    />
-                    <motion.circle
-                      cx="200"
-                      cy="200"
-                      r={RING_R}
-                      stroke="#E11B22"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                      vectorEffect="non-scaling-stroke"
-                      initial={drawInitial}
-                      whileInView={{ pathLength: ARC }}
-                      viewport={{ once: true, amount: 0.4 }}
-                      transition={drawTransition}
-                    />
-                  </g>
-                </svg>
-
-                {/* The one node — lands as the draw completes */}
-                <motion.span
-                  aria-hidden
-                  className="absolute block h-2 w-2 rounded-full bg-accord-red"
-                  style={{
-                    left: `${NODE_X}%`,
-                    top: `${NODE_Y}%`,
-                    x: "-50%",
-                    y: "-50%",
-                    boxShadow:
-                      "0 0 12px 2px rgba(225,27,34,0.55), 0 0 3px 0 rgba(255,90,60,0.8)",
-                  }}
-                  initial={
-                    reduced ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.4 }
-                  }
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  viewport={{ once: true, amount: 0.4 }}
-                  transition={
-                    reduced
-                      ? { duration: 0 }
-                      : {
-                          type: "spring",
-                          stiffness: 320,
-                          damping: 20,
-                          delay: DRAW_DELAY + DRAW_SECONDS - 0.15,
-                        }
-                  }
-                />
-
-                {/* Mono data line — the technical-data voice (brief §2 cards) */}
-                <span className="absolute bottom-5 left-6 font-mono text-xs tracking-widest text-steel-400">
-                  EST. {FOUNDING_YEAR} / MUMBAI
-                </span>
-              </div>
-
-              {/* Static offset accent ring for depth */}
-              <div
-                aria-hidden
-                className="pointer-events-none absolute -inset-3 -z-10 rounded-[2.6rem] border border-accord-red/15"
-              />
-            </motion.div>
+            {HOME_INTRO.map((p) => (
+              <motion.p
+                key={p}
+                variants={fadeSoft}
+                className="text-base leading-relaxed text-steel-300 sm:text-lg"
+              >
+                {p}
+              </motion.p>
+            ))}
           </motion.div>
         </div>
 
-        {/* VISION & MISSION — verbatim from accordchemicals.com */}
-        <motion.div
-          variants={stagger(0.1)}
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true, amount: 0.2 }}
-          className="mt-16 grid gap-4 sm:grid-cols-2 lg:mt-20"
-        >
-          {[
-            { label: "Vision", text: aboutCopy.vision, Icon: Telescope },
-            { label: "Mission", text: aboutCopy.mission, Icon: Target },
-          ].map(({ label, text, Icon }) => (
-            <motion.div
-              key={label}
-              variants={fadeSoft}
-              className="glass-card relative overflow-hidden p-6 sm:p-8"
-            >
-              <span
-                aria-hidden
-                className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-radial-fade opacity-50"
-              />
-              <div className="relative flex items-center gap-3">
-                <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-accord-red/25 bg-accord-red/[0.14] text-accord-red">
-                  <Icon className="h-5 w-5" strokeWidth={2} aria-hidden />
-                </span>
-                <span className="text-xs font-semibold uppercase tracking-[0.22em] text-accord-red">
-                  {label}
-                </span>
-              </div>
-              <p className="relative mt-4 text-lg leading-relaxed text-steel-200">
-                {text}
-              </p>
-            </motion.div>
-          ))}
-        </motion.div>
-
-        {/* STATS PROOF BAND — glass strip, the site's ONLY count-ups.
-            Suffix pops cascade left→right (§4.4). */}
+        {/* STATS PROOF BAND — the site's ONLY count-ups, cascading left→right. */}
         <motion.div
           variants={fadeSoft}
           initial="hidden"
           whileInView="show"
           viewport={{ once: true, amount: 0.3 }}
-          className="glass-card relative mt-16 overflow-hidden p-6 sm:p-8 lg:mt-20 lg:p-10"
+          className="glass-card relative mt-14 overflow-hidden p-6 sm:p-8 lg:mt-16 lg:p-10"
         >
-          <div className="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-2 gap-x-6 gap-y-10 lg:grid-cols-4">
             {stats.map((stat, i) => (
               <div
                 key={stat.label}
@@ -328,6 +119,50 @@ export default function About() {
               </div>
             ))}
           </div>
+        </motion.div>
+
+        {/* PILLARS — capability tiles: border brightens + a 1px red rule draws
+            along the top edge on hover. */}
+        <motion.div
+          variants={stagger(0.08)}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, amount: 0.2 }}
+          className="mt-5 grid gap-5 sm:grid-cols-3"
+        >
+          {aboutCopy.pillars.map((pillar, i) => {
+            const Icon = pillarIcons[i] ?? Workflow;
+            return (
+              <motion.div
+                key={pillar.title}
+                variants={fadeSoft}
+                className="group glass-card relative h-full overflow-hidden p-6 transition-colors duration-300 hover:border-white/25"
+              >
+                <span
+                  aria-hidden
+                  className="absolute inset-x-0 top-0 h-px origin-left scale-x-0 bg-gradient-to-r from-accord-red to-accord-ember transition-transform duration-500 ease-out group-hover:scale-x-100"
+                />
+                <span
+                  aria-hidden
+                  className="pointer-events-none absolute -right-12 -top-12 h-36 w-36 rounded-full bg-[radial-gradient(circle,rgba(225,27,34,0.16),transparent_70%)] opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+                />
+                <div className="relative flex items-center justify-between">
+                  <span className="flex h-12 w-12 items-center justify-center rounded-2xl border border-accord-red/25 bg-accord-red/[0.14] text-accord-red transition-transform duration-500 group-hover:-translate-y-0.5">
+                    <Icon className="h-6 w-6" strokeWidth={1.75} aria-hidden />
+                  </span>
+                  <span className="font-mono text-sm tracking-widest text-steel-500">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                </div>
+                <h3 className="type-card relative mt-5 text-white">
+                  {pillar.title}
+                </h3>
+                <p className="relative mt-2 text-sm leading-relaxed text-steel-300">
+                  {pillar.desc}
+                </p>
+              </motion.div>
+            );
+          })}
         </motion.div>
       </Container>
     </section>
