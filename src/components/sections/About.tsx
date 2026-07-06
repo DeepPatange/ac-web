@@ -88,47 +88,45 @@ export default function About() {
           </motion.div>
         </div>
 
-        {/* STATS PROOF BAND — the site's ONLY count-ups, cascading left→right. */}
+        {/* STATS PROOF BAND — an open hairline strip (no card), the site's ONLY
+            count-ups, cascading left→right. */}
         <motion.div
           variants={fadeSoft}
           initial="hidden"
           whileInView="show"
           viewport={{ once: true, amount: 0.3 }}
-          className="glass-card relative mt-14 overflow-hidden p-6 sm:p-8 lg:mt-16 lg:p-10"
+          className="relative mt-16 grid grid-cols-2 gap-x-6 gap-y-10 border-y border-white/10 py-10 lg:mt-20 lg:grid-cols-4"
         >
-          <div className="grid grid-cols-2 gap-x-6 gap-y-10 lg:grid-cols-4">
-            {stats.map((stat, i) => (
-              <div
-                key={stat.label}
-                className={cn(i > 0 && "lg:border-l lg:border-white/10 lg:pl-8")}
-              >
-                <StatNumber
-                  value={stat.value}
-                  prefix={stat.prefix}
-                  suffix={stat.suffix}
-                  label={stat.label}
-                  live
-                  delay={i * COUNT_STEP}
-                  duration={COUNT_DURATION}
-                />
-                {stat.sublabel && (
-                  <span className="mt-1.5 block font-mono text-xs tracking-widest text-steel-400">
-                    {stat.sublabel}
-                  </span>
-                )}
-              </div>
-            ))}
-          </div>
+          {stats.map((stat, i) => (
+            <div
+              key={stat.label}
+              className={cn(i > 0 && "lg:border-l lg:border-white/10 lg:pl-8")}
+            >
+              <StatNumber
+                value={stat.value}
+                prefix={stat.prefix}
+                suffix={stat.suffix}
+                label={stat.label}
+                live
+                delay={i * COUNT_STEP}
+                duration={COUNT_DURATION}
+              />
+              {stat.sublabel && (
+                <span className="mt-1.5 block font-mono text-xs tracking-widest text-steel-400">
+                  {stat.sublabel}
+                </span>
+              )}
+            </div>
+          ))}
         </motion.div>
 
-        {/* PILLARS — capability tiles: border brightens + a 1px red rule draws
-            along the top edge on hover. */}
+        {/* PILLARS — open columns (no boxes): a red top-rule draws in on hover. */}
         <motion.div
           variants={stagger(0.08)}
           initial="hidden"
           whileInView="show"
           viewport={{ once: true, amount: 0.2 }}
-          className="mt-5 grid gap-5 sm:grid-cols-3"
+          className="mt-16 grid gap-10 sm:grid-cols-3 sm:gap-8 lg:mt-20"
         >
           {aboutCopy.pillars.map((pillar, i) => {
             const Icon = pillarIcons[i] ?? Workflow;
@@ -136,28 +134,27 @@ export default function About() {
               <motion.div
                 key={pillar.title}
                 variants={fadeSoft}
-                className="group glass-card relative h-full overflow-hidden p-6 transition-colors duration-300 hover:border-white/25"
+                className="group relative pt-6"
               >
+                {/* Hairline top rule that reddens on hover */}
+                <span
+                  aria-hidden
+                  className="absolute inset-x-0 top-0 h-px bg-white/12"
+                />
                 <span
                   aria-hidden
                   className="absolute inset-x-0 top-0 h-px origin-left scale-x-0 bg-gradient-to-r from-accord-red to-accord-ember transition-transform duration-500 ease-out group-hover:scale-x-100"
                 />
-                <span
-                  aria-hidden
-                  className="pointer-events-none absolute -right-12 -top-12 h-36 w-36 rounded-full bg-[radial-gradient(circle,rgba(225,27,34,0.16),transparent_70%)] opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-                />
-                <div className="relative flex items-center justify-between">
-                  <span className="flex h-12 w-12 items-center justify-center rounded-2xl border border-accord-red/25 bg-accord-red/[0.14] text-accord-red transition-transform duration-500 group-hover:-translate-y-0.5">
-                    <Icon className="h-6 w-6" strokeWidth={1.75} aria-hidden />
+                <div className="flex items-center justify-between">
+                  <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-accord-red/[0.12] text-accord-red transition-transform duration-500 group-hover:-translate-y-0.5">
+                    <Icon className="h-5 w-5" strokeWidth={1.75} aria-hidden />
                   </span>
-                  <span className="font-mono text-sm tracking-widest text-steel-500">
+                  <span className="font-mono text-xs tracking-widest text-steel-500">
                     {String(i + 1).padStart(2, "0")}
                   </span>
                 </div>
-                <h3 className="type-card relative mt-5 text-white">
-                  {pillar.title}
-                </h3>
-                <p className="relative mt-2 text-sm leading-relaxed text-steel-300">
+                <h3 className="type-card mt-5 text-white">{pillar.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-steel-300">
                   {pillar.desc}
                 </p>
               </motion.div>
