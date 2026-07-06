@@ -147,8 +147,10 @@ function CaptionBody({ compact = false }: { compact?: boolean }) {
           exit={{ opacity: 0, y: -6 }}
           transition={{ duration: 0.35, ease: easeOut }}
           className={cn(
-            "mt-2 leading-relaxed text-steel-300",
-            compact ? "text-[13px] sm:text-sm" : "text-sm sm:text-[15px]"
+            "mt-3 font-medium leading-snug text-steel-100",
+            compact
+              ? "text-[15px] sm:text-base"
+              : "text-lg sm:text-xl lg:text-[1.375rem]"
           )}
         >
           {active.blurb}
@@ -204,7 +206,7 @@ function Stage({ progress }: { progress: MotionValue<number> }) {
               </ul>
               <div
                 aria-hidden
-                className="mt-8 hidden min-h-[6.5rem] max-w-md border-l-2 border-accord-red/60 pl-4 lg:block"
+                className="mt-8 hidden min-h-[9rem] max-w-lg border-l-2 border-accord-red/60 pl-5 lg:block"
               >
                 <CaptionBody />
               </div>
