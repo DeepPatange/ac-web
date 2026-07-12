@@ -20,7 +20,7 @@ const HIDE_RE = /text|instruction|leadboard|learn|button|cta|title|label/i;
    canvas to RENDER_SCALE of the viewport and upscale it with a CSS transform,
    so fragment work drops to ~RENDER_SCALE² (0.7² ≈ 49%), roughly halving GPU
    load. The scene is stylised and red-tinted, so the upscale is imperceptible. */
-const RENDER_SCALE = 0.7;
+const RENDER_SCALE = 0.62;
 
 export default function SplineScene({
   scene,

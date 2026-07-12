@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import {
@@ -9,6 +9,7 @@ import {
   useTransform,
   useReducedMotion,
   useInView,
+  useMotionValueEvent,
 } from "framer-motion";
 import { siteConfig, hero, cta } from "@/lib/site";
 import { fadeSoft, stagger } from "@/lib/motion";
@@ -48,10 +49,16 @@ export default function Hero() {
     offset: ["start start", "end start"],
   });
 
-  /* Keep the WebGL scene mounted (loads once) but only let it RENDER while the
-     hero is on/near screen — its render loop is paused/resumed via `active`.
-     When paused (scrolled away) the poster underneath shows the frozen scene. */
-  const heroActive = useInView(ref, { margin: "200px 0px 200px 0px" });
+  /* Keep the WebGL scene mounted (loads once) but only let it RENDER when the
+     hero is at rest at the top of the page. The instant the user scrolls away
+     from the top we freeze the render loop — the poster underneath shows the
+     last frame — so the heavy full-screen WebGL + CSS tint filter never fights
+     scroll compositing (the sole source of scroll jank per profiling). It
+     resumes live the moment you scroll back to the top. */
+  const inViewport = useInView(ref, { margin: "0px 0px 200px 0px" });
+  const [atTop, setAtTop] = useState(true);
+  useMotionValueEvent(scrollYProgress, "change", (p) => setAtTop(p < 0.12));
+  const heroActive = inViewport && atTop;
   const sceneSrc = siteConfig.splineSceneUrl || LOCAL_SCENE;
 
   /* Headline block drifts up at 1.2× scroll speed (an extra −20vh over one
