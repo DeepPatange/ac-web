@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import {
@@ -9,7 +9,6 @@ import {
   useTransform,
   useReducedMotion,
   useInView,
-  useMotionValueEvent,
 } from "framer-motion";
 import { siteConfig, hero, cta } from "@/lib/site";
 import { fadeSoft, stagger } from "@/lib/motion";
@@ -49,24 +48,20 @@ export default function Hero() {
     offset: ["start start", "end start"],
   });
 
-  /* Keep the WebGL scene mounted (loads once) but only let it RENDER when the
-     hero is at rest at the top of the page. The instant the user scrolls away
-     from the top we freeze the render loop — the poster underneath shows the
-     last frame — so the heavy full-screen WebGL + CSS tint filter never fights
-     scroll compositing (the sole source of scroll jank per profiling). It
-     resumes live the moment you scroll back to the top. */
-  const inViewport = useInView(ref, { margin: "0px 0px 200px 0px" });
-  const [atTop, setAtTop] = useState(true);
-  useMotionValueEvent(scrollYProgress, "change", (p) => setAtTop(p < 0.12));
-  const heroActive = inViewport && atTop;
+  /* Keep the WebGL scene mounted (loads once) and let it run continuously WHILE
+     the hero is on/near screen; it only pauses once fully scrolled away (200px
+     margin), where the resume never shows a jump. We deliberately do NOT stop
+     it mid-scroll — Spline's animation clock keeps running while stopped, so a
+     mid-view pause/resume teleports the scene (the "glitch"). */
+  const heroActive = useInView(ref, { margin: "200px 0px 200px 0px" });
   const sceneSrc = siteConfig.splineSceneUrl || LOCAL_SCENE;
 
   /* Headline block drifts up at 1.2× scroll speed (an extra −20vh over one
-     viewport of exit) while the Spline wrapper scales to ~1.06 and dims —
-     depth separation, transform/opacity only. */
+     viewport of exit). Transform-only, on the TEXT layer only.
+     The scene layer is intentionally left static (no scroll-driven scale/opacity):
+     transforming the large tinted+upscaled WebGL canvas every frame re-rasterises
+     the filter and is what made the hero lag and jitter. */
   const contentY = useTransform(scrollYProgress, [0, 1], ["0vh", "-20vh"]);
-  const sceneScale = useTransform(scrollYProgress, [0, 1], [1, 1.06]);
-  const sceneOpacity = useTransform(scrollYProgress, [0, 0.9], [1, 0.25]);
 
   /* Big two-line headline. The accent (site.ts headlineAccent) renders red and
      sits at the end of line two; the remaining words balance across two lines.
@@ -90,14 +85,10 @@ export default function Hero() {
     >
       {/* Full-bleed port scene filling the hero background. Poster is the
           instant base; the live Spline fades in over it and pauses off-screen.
-          Scales/dims on scroll (transform/opacity only). */}
-      <motion.div
-        style={
-          prefersReduced
-            ? undefined
-            : { scale: sceneScale, opacity: sceneOpacity }
-        }
-        className="pointer-events-none absolute inset-0 z-10 origin-center"
+          The layer is STATIC (no scroll transform) so the tinted canvas never
+          re-rasterises mid-scroll. */}
+      <div
+        className="pointer-events-none absolute inset-0 z-10"
         aria-hidden
       >
         <Image
@@ -115,7 +106,7 @@ export default function Hero() {
             <SplineScene scene={sceneSrc} active={heroActive} />
           </div>
         )}
-      </motion.div>
+      </div>
 
       {/* No full-bleed overlay — the scene pops. Only a small localized wash
           in the top-left corner keeps the text legible, plus a thin bottom fade

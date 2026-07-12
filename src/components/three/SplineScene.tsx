@@ -20,7 +20,7 @@ const HIDE_RE = /text|instruction|leadboard|learn|button|cta|title|label/i;
    canvas to RENDER_SCALE of the viewport and upscale it with a CSS transform,
    so fragment work drops to ~RENDER_SCALE² (0.7² ≈ 49%), roughly halving GPU
    load. The scene is stylised and red-tinted, so the upscale is imperceptible. */
-const RENDER_SCALE = 0.62;
+const RENDER_SCALE = 0.55;
 
 export default function SplineScene({
   scene,
@@ -66,6 +66,9 @@ export default function SplineScene({
       className={`spline-tint absolute inset-0 h-full w-full overflow-hidden transition-opacity duration-1000 ${
         ready ? "opacity-100" : "opacity-0"
       }`}
+      /* Promote the tinted canvas to its own GPU compositor layer so scrolling
+         it past is a cheap texture move, not a re-raster of the filtered layer. */
+      style={{ willChange: "transform", transform: "translateZ(0)" }}
     >
       {/* Reduced-resolution render target, upscaled to fill (see RENDER_SCALE). */}
       <div
@@ -73,7 +76,7 @@ export default function SplineScene({
         style={{
           width: `${100 * RENDER_SCALE}%`,
           height: `${100 * RENDER_SCALE}%`,
-          transform: `scale(${1 / RENDER_SCALE})`,
+          transform: `scale(${1 / RENDER_SCALE}) translateZ(0)`,
         }}
       >
         <Spline
