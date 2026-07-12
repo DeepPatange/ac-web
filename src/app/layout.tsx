@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Space_Grotesk, JetBrains_Mono } from "next/font/google";
+import { Inter, Sora, JetBrains_Mono } from "next/font/google";
 import { MotionConfig } from "framer-motion";
 import "./globals.css";
 import { siteConfig } from "@/lib/site";
@@ -13,8 +13,11 @@ const inter = Inter({
   display: "swap",
 });
 
-const display = Space_Grotesk({
+// Sora — a modern geometric grotesque with strong bold weights. Carries all
+// display type (headings) for a confident, professional, contemporary voice.
+const display = Sora({
   subsets: ["latin"],
+  weight: ["500", "600", "700", "800"],
   variable: "--font-display",
   display: "swap",
 });

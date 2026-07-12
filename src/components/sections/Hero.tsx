@@ -145,7 +145,7 @@ export default function Hero() {
 
           <h1
             aria-label={hero.headline}
-            className="font-display font-semibold tracking-[-0.025em] text-white [text-shadow:0_2px_30px_rgba(11,11,13,0.85)] text-[clamp(2.25rem,6.65vw,4.15rem)] leading-[1.0]"
+            className="font-display font-bold tracking-[-0.035em] text-white [text-shadow:0_2px_30px_rgba(11,11,13,0.85)] text-[clamp(2.25rem,6.65vw,4.15rem)] leading-[1.0]"
           >
             <span aria-hidden className="block">
               <CharReveal
