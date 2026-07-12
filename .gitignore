@@ -11,4 +11,9 @@ next-env.d.ts
 .env*
 
 # Full-res original gallery photos (optimized copies live in public/gallery)
-new galary/
+_source/gallery-originals/
+
+# Archived, unrelated scaffold — keep its source in history but never commit
+# its dependencies or build output.
+_archive/**/node_modules/
+_archive/**/dist/
