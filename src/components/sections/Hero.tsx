@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import {
@@ -41,6 +41,27 @@ const H1_BEAT = H1_STAGGER * 2.5;
 export default function Hero() {
   const ref = useRef<HTMLElement>(null);
   const prefersReduced = useReducedMotion();
+
+  /* Defer the heavy Spline chunk (~4.2MB JS + 486KB scene + WASM) until the
+     browser is IDLE, so it never competes with first paint/hydration. The
+     poster is the hero until then; the scene fades in after. */
+  const [sceneReady, setSceneReady] = useState(false);
+  useEffect(() => {
+    if (prefersReduced) return;
+    const w = window as unknown as {
+      requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number;
+      cancelIdleCallback?: (id: number) => void;
+    };
+    let idle = 0;
+    let timer = 0;
+    const start = () => setSceneReady(true);
+    if (w.requestIdleCallback) idle = w.requestIdleCallback(start, { timeout: 2500 });
+    else timer = window.setTimeout(start, 1200);
+    return () => {
+      if (idle && w.cancelIdleCallback) w.cancelIdleCallback(idle);
+      if (timer) clearTimeout(timer);
+    };
+  }, [prefersReduced]);
 
   /* §4.3 seam 3 — scrubbed exit. Progress 0→1 as the hero scrolls out. */
   const { scrollYProgress } = useScroll({
@@ -101,7 +122,7 @@ export default function Hero() {
           draggable={false}
         />
         {/* Live 3D scene overlaid on the poster. Reduced motion → poster only. */}
-        {!prefersReduced && (
+        {!prefersReduced && sceneReady && (
           <div className="absolute inset-0">
             <SplineScene scene={sceneSrc} active={heroActive} />
           </div>
@@ -186,12 +207,12 @@ export default function Hero() {
             initial="hidden"
             animate="show"
           >
-            <motion.p
-              variants={fadeSoft}
-              className="mt-4 max-w-sm text-sm/relaxed text-steel-300 sm:mt-5"
-            >
+            {/* LCP element — rendered visible in the SSR HTML on purpose. It
+                used to sit behind a staggered entrance (opacity:0 until
+                hydration + 0.85s), which pushed LCP from ~220ms to ~2270ms. */}
+            <p className="mt-4 max-w-sm text-sm/relaxed text-steel-300 sm:mt-5">
               {hero.subtext}
-            </motion.p>
+            </p>
 
             <motion.div
               variants={fadeSoft}

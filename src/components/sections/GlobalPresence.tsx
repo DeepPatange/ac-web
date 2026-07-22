@@ -1,8 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useRef } from "react";
 import Image from "next/image";
-import DottedMap from "dotted-map";
 import {
   animate,
   motion,
@@ -98,17 +97,10 @@ export default function GlobalPresence() {
   const mapRef = useRef<HTMLDivElement>(null);
   const arcsActive = useInView(mapRef, { once: true, amount: 0.4 });
 
-  // Static dotted world base — memoised, rendered as a data-URI image.
-  const svgMap = useMemo(() => {
-    const map = new DottedMap({ height: 100, grid: "diagonal" });
-    return map.getSVG({
-      radius: 0.22,
-      color: "#FFFFFF24",
-      shape: "circle",
-      backgroundColor: "transparent",
-    });
-  }, []);
-
+  // Static dotted world base — pre-generated at build time into
+  // public/world-dots.svg (see scripts/generate-world-map.mjs). Generating it
+  // in the browser cost ~635 ms of blocked main thread and inlined ~964 KB of
+  // SVG into the HTML; serving it as a file makes it a cacheable 24 KB (gzip).
   const mumbai = project(MUMBAI.lat, MUMBAI.lng);
 
   // Presence tiles — static references (the count-ups live in the About band).
@@ -167,7 +159,7 @@ export default function GlobalPresence() {
               className="relative aspect-[2/1] w-full select-none overflow-hidden rounded-lg"
             >
               <Image
-                src={`data:image/svg+xml;utf8,${encodeURIComponent(svgMap)}`}
+                src="/world-dots.svg"
                 alt=""
                 width={1056}
                 height={495}

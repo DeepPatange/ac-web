@@ -17,3 +17,6 @@ _source/gallery-originals/
 # its dependencies or build output.
 _archive/**/node_modules/
 _archive/**/dist/
+
+# Separate standalone project — the white-theme site (its own repo: AC-WEB-WHITE)
+/ac white web/

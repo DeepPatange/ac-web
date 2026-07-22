@@ -113,13 +113,19 @@ function Hero() {
 export default function IndustriesServedContent() {
   const [active, setActive] = useState(0);
 
-  // Preload every panel image so hover reveals are instant (no empty flash).
+  /* Preload panel images so hover reveals are instant — but only on pointer
+     devices with a real hover, and only the active panel plus its neighbours.
+     Preloading all 18 up-front cost ~2.4MB before the user hovered anything. */
   useEffect(() => {
-    INDUSTRIES.forEach((ind) => {
+    if (!window.matchMedia("(hover: hover) and (min-width: 1024px)").matches) return;
+    const idxs = [active, active + 1, active - 1].filter(
+      (i) => i >= 0 && i < INDUSTRIES.length
+    );
+    idxs.forEach((i) => {
       const im = new window.Image();
-      im.src = img(ind.id);
+      im.src = img(INDUSTRIES[i].id);
     });
-  }, []);
+  }, [active]);
 
   return (
     <>

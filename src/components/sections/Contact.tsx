@@ -9,7 +9,6 @@ import {
 } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import DottedMap from "dotted-map";
 import {
   MapPin,
   Phone,
@@ -46,14 +45,11 @@ function projectPoint(lat: number, lng: number): { x: number; y: number } {
 
 const PIN = projectPoint(MUMBAI.lat, MUMBAI.lng);
 
-/* Generated once at module scope — identical recipe to the Presence map so the
-   two cards read as one system. */
-const dottedMapSvg = new DottedMap({ height: 100, grid: "diagonal" }).getSVG({
-  radius: 0.22,
-  color: "#FFFFFF26",
-  shape: "circle",
-  backgroundColor: "transparent",
-});
+/* The dotted world base is pre-generated at build time into
+   public/world-dots.svg (see scripts/generate-world-map.mjs) — identical recipe
+   to the Presence map so the two cards read as one system. Generating it here
+   at MODULE SCOPE previously blocked the main thread for ~635 ms during chunk
+   evaluation, before hydration, on every home-page load. */
 
 /* -------------------------------------------------------------------------- */
 /*  Form                                                                      */
@@ -298,7 +294,7 @@ export default function Contact() {
               <TopRule />
               <div className="relative aspect-[2/1] w-full overflow-hidden">
                 <Image
-                  src={`data:image/svg+xml;utf8,${encodeURIComponent(dottedMapSvg)}`}
+                  src="/world-dots.svg"
                   alt=""
                   aria-hidden
                   width={1056}
