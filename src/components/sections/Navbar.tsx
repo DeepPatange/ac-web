@@ -11,10 +11,6 @@ import { nav, cta, hero, siteConfig } from "@/lib/site";
 import { TextRoll } from "@/components/ui/RollButton";
 import { cn } from "@/lib/utils";
 
-/** Wordmark split: first word emphasized, remainder muted. */
-const [brandLead, ...brandRestWords] = siteConfig.name.split(" ");
-const brandRest = brandRestWords.join(" ");
-
 const focusRing =
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accord-red focus-visible:ring-offset-2 focus-visible:ring-offset-ink";
 
@@ -87,29 +83,23 @@ export default function Navbar() {
           className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/25 to-transparent"
         />
 
-        {/* LEFT — logo mark + wordmark */}
+        {/* LEFT — full brand lockup (mark + wordmark are one asset). */}
         <Link
           href={resolve("#home")}
           aria-label={`${siteConfig.name} — home`}
           className={cn(
-            "group/logo relative flex items-center gap-2.5 rounded-xl",
+            "group/logo relative flex items-center rounded-xl",
             focusRing
           )}
         >
-          <span className="relative flex h-11 w-11 items-center justify-center transition-transform duration-500 group-hover/logo:scale-105">
-            <Image
-              src="/logo.png"
-              alt={siteConfig.name}
-              fill
-              sizes="44px"
-              priority
-              className="object-contain"
-            />
-          </span>
-          <span className="hidden text-[15px] font-semibold leading-none tracking-tight text-white sm:inline">
-            {brandLead}{" "}
-            <span className="font-normal text-steel-400">{brandRest}</span>
-          </span>
+          <Image
+            src="/logo.png"
+            alt={siteConfig.name}
+            width={219}
+            height={99}
+            priority
+            className="h-9 w-auto transition-transform duration-500 group-hover/logo:scale-105 sm:h-10"
+          />
         </Link>
 
         {/* CENTER — nav links with a soft hover pill */}

@@ -45,15 +45,18 @@ const sectionTitle = "What we do";
    3 = Comprehensive Services. */
 const [vImport, vIndent, vExport, vServices] = verticals;
 
-const img = (id: string) =>
-  `https://images.unsplash.com/${id}?q=80&w=1200&auto=format&fit=crop`;
+/* Byte-for-byte the same URL NetworkShowcase and Gallery build for these
+   photos — an identical string is what lets the browser serve all three
+   sections from one download per picture. Keep the three helpers in sync. */
+const photo = (id: string) =>
+  `https://images.unsplash.com/photo-${id}?w=1200&auto=format&q=70`;
 
 /* Each pillar paired with a real industrial photograph (Unsplash). */
 const SLIDES = [
-  { ...vImport, image: img("photo-1494412574643-ff11b0a5c1c3") }, // port + containers
-  { ...vIndent, image: img("photo-1516937941344-00b4e0337589") }, // refinery
-  { ...vExport, image: img("photo-1578575437130-527eed3abbec") }, // container ship loading
-  { ...vServices, image: img("photo-1513828583688-c52646db42da") }, // pipework
+  { ...vImport, image: photo("1494412574643-ff11b0a5c1c3") }, // port + containers
+  { ...vIndent, image: photo("1516937941344-00b4e0337589") }, // refinery
+  { ...vExport, image: photo("1578575437130-527eed3abbec") }, // container ship loading
+  { ...vServices, image: photo("1513828583688-c52646db42da") }, // pipework
 ] as const;
 
 const QUARTER = SLIDES.length; // 4 — one progress quarter per pillar

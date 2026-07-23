@@ -201,21 +201,16 @@ export default function Footer() {
           <motion.div variants={fadeSoft} className="sm:col-span-2 lg:col-span-5 lg:pr-10">
             <Link
               href="/"
-              className="inline-flex items-center gap-3 font-display text-2xl font-semibold tracking-tight focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accord-red rounded-sm"
+              aria-label={`${siteConfig.name} — home`}
+              className="inline-flex items-center rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accord-red"
             >
-              <span className="relative flex h-12 w-12 shrink-0 items-center justify-center">
-                <Image
-                  src="/logo.png"
-                  alt={siteConfig.name}
-                  fill
-                  sizes="48px"
-                  className="object-contain"
-                />
-              </span>
-              <span>
-                <span className="text-white">Accord</span>
-                <span className="text-accord-red">Chemicals</span>
-              </span>
+              <Image
+                src="/logo.png"
+                alt={siteConfig.name}
+                width={219}
+                height={99}
+                className="h-12 w-auto sm:h-14"
+              />
             </Link>
             <p className="mt-2 font-mono text-[11px] uppercase tracking-widest text-steel-400">
               {siteConfig.legalName}

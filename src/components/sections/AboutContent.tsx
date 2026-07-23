@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import {
@@ -157,11 +158,14 @@ function AboutStory() {
             viewport={inView}
             className="group relative overflow-hidden rounded-3xl ring-1 ring-white/10"
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="https://images.unsplash.com/photo-1578575437130-527eed3abbec?w=1100&h=1200&fit=crop&crop=entropy&auto=format&q=74"
+            {/* Below the fold, so no `priority`. `sizes` mirrors the real slot:
+                half the 1216px content column from lg up, full width under it. */}
+            <Image
+              src="https://images.unsplash.com/photo-1578575437130-527eed3abbec?w=1200&auto=format&q=70"
               alt="Bulk chemical storage terminal at an Indian port"
-              loading="lazy"
+              width={1200}
+              height={1500}
+              sizes="(min-width: 1280px) 576px, (min-width: 1024px) 45vw, 92vw"
               className="aspect-[4/5] w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
             />
             <div

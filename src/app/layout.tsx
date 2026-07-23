@@ -44,10 +44,10 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_IN",
     siteName: siteConfig.name,
-    // 1200×630 red port scene — asset supplied at integration (public/og.png).
+    // 1200×630 red port scene (public/og.jpg — JPEG q82, was a 935KB lossless PNG).
     images: [
       {
-        url: "/og.png",
+        url: "/og.jpg",
         width: 1200,
         height: 630,
         alt: "Accord Chemical Corporation — petrochemical trade, moved with precision",

@@ -37,8 +37,15 @@ const SHOTS: Shot[] = [
   { id: "1504328345606-18bbc8c9d7d1", alt: "Welder at a fabrication plant" },
 ];
 
+/* Same seven photographs as NetworkShowcase (the zoom showcase) and four of
+   them again in Verticals, so the URL is built identically in all three — one
+   fetch per photo for the whole page instead of one per section. Deliberately
+   NOT next/image: the other two sections render these through primitives that
+   take a plain <img> (zoom-parallax) or a motion.img (animated-slideshow), so
+   routing this one through /_next/image would mint a third URL per photo and
+   undo the sharing. Keep in sync with the helper in NetworkShowcase.tsx. */
 function src(id: string): string {
-  return `https://images.unsplash.com/photo-${id}?w=900&h=900&fit=crop&crop=entropy&auto=format&q=68`;
+  return `https://images.unsplash.com/photo-${id}?w=1200&auto=format&q=70`;
 }
 
 export default function Gallery() {

@@ -42,8 +42,12 @@ const INDUSTRIES: Industry[] = [
   { name: "Polymers", id: "1605600659908-0ef719419d41" },
 ];
 
-const img = (id: string, w = 900, h = 1100) =>
-  `https://images.unsplash.com/photo-${id}?w=${w}&h=${h}&fit=crop&crop=entropy&auto=format&q=70`;
+/* Defaults size the sticky desktop panel, which is ~520px wide — the old 900px
+   request was nearly double what it could show. Every size below keeps the
+   original w:h ratio so the entropy crop, and therefore the framing, is
+   identical. */
+const img = (id: string, w = 720, h = 880, q = 70) =>
+  `https://images.unsplash.com/photo-${id}?w=${w}&h=${h}&fit=crop&crop=entropy&auto=format&q=${q}`;
 
 /* -------------------------------------------------------------------------- */
 
@@ -207,7 +211,7 @@ export default function IndustriesServedContent() {
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src={img(ind.id, 500, 620)}
+                  src={img(ind.id, 400, 496, 62)}
                   alt={ind.name}
                   loading="lazy"
                   className="h-full w-full object-cover"
