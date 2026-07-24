@@ -37,10 +37,16 @@ export default function TradeArc({
   strokeWidth = 1.5,
   nodeSize = 8,
   showNode = true,
+  flow = false,
+  flowDelay = 0,
   className,
 }: {
   /** 0→1 scrub value. Pass a static MotionValue(1) for an always-drawn arc. */
   progress: MotionValue<number>;
+  /** Loop a bright "transport" comet along the lane once it is drawn. */
+  flow?: boolean;
+  /** Stagger the comet start so lanes don't pulse in lockstep. */
+  flowDelay?: number;
   /** Start point, 0–100 box units. */
   from?: ArcPoint;
   /** End point, 0–100 box units. */
@@ -130,6 +136,36 @@ export default function TradeArc({
             strokeLinecap="round"
             style={{ pathLength: p }}
           />
+          {/* Flowing transport comet — a short bright segment that runs from the
+              origin to the hub on a loop, so the lanes read as live shipping
+              routes. pathLength={1} normalises the dash to the 0–1 range so it
+              works regardless of the measured pixel length. */}
+          {flow && !reduced && (
+            <motion.path
+              d={d}
+              stroke="#FF5A3C"
+              strokeWidth={strokeWidth * 1.6}
+              strokeLinecap="round"
+              pathLength={1}
+              strokeDasharray="0.16 0.84"
+              initial={{ strokeDashoffset: 1, opacity: 0 }}
+              animate={{ strokeDashoffset: [1, 0], opacity: [0, 1, 1, 0] }}
+              transition={{
+                strokeDashoffset: {
+                  duration: 2.6,
+                  ease: "easeInOut",
+                  repeat: Infinity,
+                  delay: flowDelay,
+                },
+                opacity: {
+                  duration: 2.6,
+                  times: [0, 0.15, 0.85, 1],
+                  repeat: Infinity,
+                  delay: flowDelay,
+                },
+              }}
+            />
+          )}
         </svg>
       )}
       {showNode && (

@@ -84,6 +84,8 @@ function LaneArc({
       nodeAt={1}
       strokeWidth={1}
       nodeSize={5}
+      flow={active}
+      flowDelay={delay + 1.3}
     />
   );
 }
@@ -95,7 +97,12 @@ function LaneArc({
 
 export default function GlobalPresence() {
   const mapRef = useRef<HTMLDivElement>(null);
-  const arcsActive = useInView(mapRef, { once: true, amount: 0.4 });
+  // Trigger later — the lanes should draw as you arrive at the map, not before.
+  const arcsActive = useInView(mapRef, {
+    once: true,
+    amount: 0.6,
+    margin: "0px 0px -12% 0px",
+  });
 
   // Static dotted world base — pre-generated at build time into
   // public/world-dots.svg (see scripts/generate-world-map.mjs). Generating it

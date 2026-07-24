@@ -300,8 +300,8 @@ function ChainNode({
   label: string;
   primary?: boolean;
 }) {
-  const w = primary ? 168 : 148;
-  const h = primary ? 108 : 92;
+  const w = primary ? 150 : 148;
+  const h = primary ? 100 : 92;
   return (
     <g>
       <motion.rect
@@ -315,7 +315,7 @@ function ChainNode({
         strokeWidth={primary ? 2 : 1.25}
         initial={{ opacity: 0, scale: 0.8 }}
         whileInView={{ opacity: 1, scale: 1 }}
-        viewport={{ once: true, amount: 0.4 }}
+        viewport={{ once: true, amount: 0.55, margin: "0px 0px -12% 0px" }}
         transition={{ type: "spring", stiffness: 200, damping: 18 }}
         style={{ transformOrigin: `${x}px 320px` }}
       />
@@ -325,7 +325,7 @@ function ChainNode({
         textAnchor="middle"
         dominantBaseline="middle"
         className="fill-white font-display"
-        style={{ fontSize: primary ? 19 : 16, fontWeight: 600, letterSpacing: "0.02em" }}
+        style={{ fontSize: primary ? 16.5 : 15.5, fontWeight: 600, letterSpacing: "0.01em" }}
       >
         {label.split(" ").map((word, i, arr) => (
           <tspan
@@ -347,7 +347,9 @@ function FlowDiagram() {
   const draw = (delay: number) => ({
     initial: { pathLength: reduced ? 1 : 0, opacity: 0.9 },
     whileInView: drawn,
-    viewport: { once: true, amount: 0.3 },
+    // Trigger later — only once the diagram is well into view (bottom margin
+    // pulled up) so the lines draw as you arrive, not before you get there.
+    viewport: { once: true, amount: 0.55, margin: "0px 0px -12% 0px" },
     transition: { duration: reduced ? 0 : 1.1, ease: "easeInOut", delay },
   });
 
@@ -396,7 +398,7 @@ function FlowDiagram() {
 
       {/* Central chain connectors */}
       <motion.path
-        d="M 494 320 L 526 320"
+        d="M 496 320 L 519 320"
         stroke="url(#svc-line)"
         strokeWidth={2.5}
         fill="none"
@@ -404,7 +406,7 @@ function FlowDiagram() {
         {...draw(0.45)}
       />
       <motion.path
-        d="M 674 320 L 706 320"
+        d="M 681 320 L 704 320"
         stroke="url(#svc-line)"
         strokeWidth={2.5}
         fill="none"
