@@ -113,7 +113,7 @@ function AppHero() {
 
             <motion.h1
               variants={fadeSoft}
-              className="mt-6 font-display font-bold leading-[1.03] tracking-[-0.03em] text-white text-[clamp(2.25rem,5vw,3.6rem)]"
+              className="mt-6 font-display font-bold leading-[1.03] tracking-[-0.03em] text-white text-[clamp(2.7rem,5.8vw,4.25rem)]"
             >
               The trading desk,
               <br />
@@ -122,7 +122,7 @@ function AppHero() {
 
             <motion.p
               variants={fadeSoft}
-              className="mt-6 max-w-xl text-base leading-relaxed text-steel-300 sm:text-lg"
+              className="mt-6 max-w-xl text-lg leading-relaxed text-steel-300 sm:text-xl"
             >
               {appMeta.tagline}
             </motion.p>
@@ -133,16 +133,16 @@ function AppHero() {
               className="mt-8 flex flex-wrap items-center gap-x-8 gap-y-4"
             >
               <div>
-                <dt className="flex items-center gap-1.5 font-display text-2xl font-semibold text-white">
+                <dt className="flex items-center gap-1.5 font-display text-[1.9rem] font-semibold text-white">
                   {appMeta.rating}
-                  <Star className="h-4 w-4 fill-accord-red text-accord-red" aria-hidden />
+                  <Star className="h-5 w-5 fill-accord-red text-accord-red" aria-hidden />
                 </dt>
                 <dd className="font-mono text-[11px] uppercase tracking-widest text-steel-400">
                   Rating
                 </dd>
               </div>
               <div>
-                <dt className="font-display text-2xl font-semibold text-white">
+                <dt className="font-display text-[1.9rem] font-semibold text-white">
                   {appMeta.downloads}
                 </dt>
                 <dd className="font-mono text-[11px] uppercase tracking-widest text-steel-400">
@@ -150,7 +150,7 @@ function AppHero() {
                 </dd>
               </div>
               <div>
-                <dt className="font-display text-2xl font-semibold text-white">
+                <dt className="font-display text-[1.9rem] font-semibold text-white">
                   {appMeta.category}
                 </dt>
                 <dd className="font-mono text-[11px] uppercase tracking-widest text-steel-400">
