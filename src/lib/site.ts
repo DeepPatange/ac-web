@@ -75,7 +75,7 @@ export const nav = [
   { label: "Industries Served", href: "/industries-served" },
   { label: "Career", href: "/career" },
   { label: "Gallery", href: "/gallery" },
-  { label: "App", href: "/app" },
+  { label: "Accord Interact", href: "/app" },
   { label: "Contact Us", href: "/contact-us" },
 ] as const;
 
@@ -101,6 +101,7 @@ export const appMeta = {
   name: "Accord Interact",
   packageId: "com.accord.accordinteract",
   url: "https://play.google.com/store/apps/details?id=com.accord.accordinteract",
+  appStoreUrl: "https://apps.apple.com/in/app/accord-interact/id6756520729",
   tagline:
     "The all-in-one platform for chemical-industry professionals — connecting customers, brokers, suppliers and sales teams to trade smarter and stay informed.",
   rating: "5.0",
