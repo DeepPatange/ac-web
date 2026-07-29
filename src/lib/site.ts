@@ -75,6 +75,7 @@ export const nav = [
   { label: "Industries Served", href: "/industries-served" },
   { label: "Career", href: "/career" },
   { label: "Gallery", href: "/gallery" },
+  { label: "App", href: "/app" },
   { label: "Contact Us", href: "/contact-us" },
 ] as const;
 
@@ -93,6 +94,59 @@ export const cta = {
   submit: "Send enquiry",
   /** Per-family enquire label (Products grid rows). */
   enquire: "Enquire",
+} as const;
+
+/** Accord Interact — the company's Android trading app (Google Play). */
+export const appMeta = {
+  name: "Accord Interact",
+  packageId: "com.accord.accordinteract",
+  url: "https://play.google.com/store/apps/details?id=com.accord.accordinteract",
+  tagline:
+    "The all-in-one platform for chemical-industry professionals — connecting customers, brokers, suppliers and sales teams to trade smarter and stay informed.",
+  rating: "5.0",
+  downloads: "100+",
+  category: "Business",
+  updated: "18 Feb 2026",
+  /** icon key maps to a lucide-react icon in AppContent. */
+  features: [
+    {
+      icon: "LineChart",
+      title: "Live market prices",
+      desc: "Real-time pricing across domestic, China, import/export, aromatics and Singapore (SGX) markets — by port, with ready & incoming stock and interactive charts from 1 day to 5 years.",
+    },
+    {
+      icon: "Handshake",
+      title: "Seamless trading",
+      desc: "Place buy orders, submit bids and negotiate directly in-app — packing, delivery, port, tax and payment terms — with a transparent counteroffer-to-approval workflow.",
+    },
+    {
+      icon: "Briefcase",
+      title: "Broker & enquiry management",
+      desc: "Brokers submit enquiries on behalf of multiple companies, track negotiations and manage their whole portfolio from one dedicated dashboard.",
+    },
+    {
+      icon: "Ship",
+      title: "Supplier collaboration",
+      desc: "Suppliers receive product requests and submit detailed quotes — price, currency, terms, load/discharge ports, origin, make, ETA and vessel details.",
+    },
+    {
+      icon: "MessagesSquare",
+      title: "Real-time chat",
+      desc: "Message your assigned salesperson or team directly. Group chats, read receipts, typing indicators and instant notifications keep everyone aligned.",
+    },
+    {
+      icon: "Newspaper",
+      title: "Industry intelligence",
+      desc: "Curated news and blog articles, plant-shutdown calendars, manufacturer capacity data and a built-in currency converter.",
+    },
+  ],
+  roles: ["Customers", "Brokers", "Suppliers", "Sales teams"],
+  screens: [
+    { src: "/app/screen-1.webp", label: "Transactions — orders, bids & enquiries" },
+    { src: "/app/screen-2.webp", label: "Live market data & price charts" },
+    { src: "/app/screen-3.webp", label: "Industry news & intelligence" },
+    { src: "/app/screen-4.webp", label: "Trading tools & calculators" },
+  ],
 } as const;
 
 /** Hero overlay copy — Spline scene + text overlay ONLY. */
