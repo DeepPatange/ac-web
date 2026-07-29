@@ -113,9 +113,11 @@ function AppHero() {
 
             <motion.h1
               variants={fadeSoft}
-              className="type-hero mt-6 text-balance text-white"
+              className="mt-6 font-display font-bold leading-[1.03] tracking-[-0.03em] text-white text-[clamp(2.25rem,5vw,3.6rem)]"
             >
-              The trading desk, in your pocket.
+              The trading desk,
+              <br />
+              in your pocket.
             </motion.h1>
 
             <motion.p
