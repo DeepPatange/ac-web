@@ -398,7 +398,7 @@ function FlowDiagram() {
 
       {/* Central chain connectors */}
       <motion.path
-        d="M 496 320 L 519 320"
+        d="M 498 320 L 511 320"
         stroke="url(#svc-line)"
         strokeWidth={2.5}
         fill="none"
@@ -406,7 +406,7 @@ function FlowDiagram() {
         {...draw(0.45)}
       />
       <motion.path
-        d="M 681 320 L 704 320"
+        d="M 679 320 L 692 320"
         stroke="url(#svc-line)"
         strokeWidth={2.5}
         fill="none"
