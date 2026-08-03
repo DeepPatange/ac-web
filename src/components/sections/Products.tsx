@@ -21,7 +21,7 @@ function ProductsIntro({ align = "left" }: { align?: "left" | "center" }) {
       viewport={inView}
       transition={{ delay: 0.12 }}
       className={cn(
-        "mt-6 max-w-3xl text-lg font-medium leading-snug text-steel-100 sm:text-xl lg:text-[1.6rem]",
+        "mt-6 max-w-2xl text-base font-medium leading-snug text-steel-100 sm:text-lg lg:text-xl",
         align === "center" && "mx-auto text-center"
       )}
     >
