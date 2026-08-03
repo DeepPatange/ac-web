@@ -21,6 +21,7 @@ export default function Home() {
       <Navbar />
       <main>
         <Hero />
+        <AppBand />
         <NetworkShowcase />
         <About />
         <Verticals />
@@ -33,7 +34,6 @@ export default function Home() {
         <Career />
         <Gallery />
         <Contact />
-        <AppBand />
       </main>
       <Footer />
     </>
