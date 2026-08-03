@@ -255,9 +255,9 @@ function RowBody({
   );
 
   return dense ? (
-    <div className="grid grid-cols-[2.75rem_minmax(15rem,21rem)_1fr_auto] items-baseline gap-x-6 py-2.5 lg:py-3.5">
+    <div className="grid grid-cols-[2.75rem_minmax(15rem,24rem)_1fr_auto] items-baseline gap-x-6 py-2.5 lg:py-3.5">
       {number}
-      {name("whitespace-nowrap")}
+      {name("whitespace-nowrap text-[1.15rem]")}
       <p className="min-w-0 truncate text-sm leading-relaxed text-steel-400">
         {product.desc}
       </p>
