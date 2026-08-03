@@ -69,13 +69,13 @@ export const siteConfig = {
 /** Nav — labels and order mirror the page's section order EXACTLY. */
 export const nav = [
   { label: "Home", href: "#home" },
+  { label: "Accord Interact", href: "/app" },
   { label: "About Us", href: "/about-us" },
   { label: "Products", href: "/products" },
   { label: "Services", href: "/services" },
   { label: "Industries Served", href: "/industries-served" },
   { label: "Career", href: "/career" },
   { label: "Gallery", href: "/gallery" },
-  { label: "Accord Interact", href: "/app" },
   { label: "Contact Us", href: "/contact-us" },
 ] as const;
 
