@@ -12,6 +12,7 @@ import Process from "@/components/sections/Process";
 import Career from "@/components/sections/Career";
 import Gallery from "@/components/sections/Gallery";
 import Contact from "@/components/sections/Contact";
+import AppBand from "@/components/sections/AppBand";
 import Footer from "@/components/sections/Footer";
 
 export default function Home() {
@@ -32,6 +33,7 @@ export default function Home() {
         <Career />
         <Gallery />
         <Contact />
+        <AppBand />
       </main>
       <Footer />
     </>
