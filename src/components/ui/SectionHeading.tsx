@@ -17,6 +17,8 @@ export default function SectionHeading({
   intro,
   align = "left",
   number,
+  /** Extra classes for the intro paragraph (e.g. to widen it / keep one line). */
+  introClassName,
   // kept for API compatibility with existing call-sites; no longer used.
   invert: _invert = false,
 }: {
@@ -25,6 +27,7 @@ export default function SectionHeading({
   intro?: string;
   align?: "center" | "left";
   number?: string;
+  introClassName?: string;
   invert?: boolean;
 }) {
   return (
@@ -74,7 +77,8 @@ export default function SectionHeading({
           transition={{ delay: 0.15 }}
           className={cn(
             "mt-5 max-w-2xl text-base leading-relaxed text-steel-300 sm:text-lg",
-            align === "center" ? "mx-auto" : ""
+            align === "center" ? "mx-auto" : "",
+            introClassName
           )}
         >
           {intro}

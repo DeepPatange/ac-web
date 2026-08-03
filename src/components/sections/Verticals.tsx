@@ -188,6 +188,7 @@ function Stage({ progress }: { progress: MotionValue<number> }) {
           number="02"
           title={sectionTitle}
           intro={verticalsIntro}
+          introClassName="lg:max-w-none lg:whitespace-nowrap"
         />
 
         <HoverSlider className="mt-6 flex min-h-0 flex-1 flex-col sm:mt-8 lg:mt-12">
@@ -261,6 +262,7 @@ function ReducedVerticals() {
           number="02"
           title={sectionTitle}
           intro={verticalsIntro}
+          introClassName="lg:max-w-none lg:whitespace-nowrap"
         />
         <div className="mt-10 grid gap-5 sm:grid-cols-2">
           {SLIDES.map((slide, index) => (
